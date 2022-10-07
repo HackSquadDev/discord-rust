@@ -21,11 +21,15 @@ notice = "warn"
 allow = [
     "MIT",
     "Apache-2.0",
+    "BSL-1.0",
     "BSD-3-Clause",
+    "ISC",
+    "MPL-2.0",
+    "Unicode-DFS-2016",
 ]
 
-# Deny all unlicensed, copyleft and other not explicitly allowed licenses
-unlicensed = "deny"
+# Deny all copyleft and other not explicitly allowed licenses
+unlicensed = "warn"
 copyleft = "deny"
 allow-osi-fsf-free = "neither"
 default = "deny"

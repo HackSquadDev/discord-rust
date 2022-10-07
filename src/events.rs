@@ -17,6 +17,7 @@ impl EventHandler for Handler {
         if let Interaction::ApplicationCommand(command) = interaction {
             let content = match command.data.name.as_str() {
                 "id" => commands::id::run(&command.data.options),
+                "team" => commands::team::run(&command.data.options).await,
                 _ => "not implemented :(".to_string(),
             };
 
@@ -44,7 +45,9 @@ impl EventHandler for Handler {
         );
 
         let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
-            commands.create_application_command(|command| commands::id::register(command))
+            commands
+                .create_application_command(|command| commands::id::register(command))
+                .create_application_command(|command| commands::team::register(command))
         })
         .await;
 

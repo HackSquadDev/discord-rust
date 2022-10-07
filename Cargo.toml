@@ -12,3 +12,4 @@ serenity = { version = "0.11.1"}
 serde = { version = "1.0.136", features=["derive"] }
 dotenvy = "0.15.5"
 envy = "0.4.2"
+reqwest = "0.11.12"

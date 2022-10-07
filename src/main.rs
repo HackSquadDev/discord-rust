@@ -1,21 +1,19 @@
 use std::env;
 
-use serenity::async_trait;
 use serenity::framework::standard::macros::{command, group};
 use serenity::framework::standard::{CommandResult, StandardFramework};
 use serenity::model::channel::Message;
 use serenity::prelude::*;
 
+mod commands;
 mod environment;
+mod events;
 
 #[group]
 #[commands(ping)]
 struct General;
 
 struct Handler;
-
-#[async_trait]
-impl EventHandler for Handler {}
 
 #[tokio::main]
 async fn main() {

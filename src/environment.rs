@@ -3,18 +3,19 @@ use std::env::{self, Vars};
 
 use serde::Deserialize;
 
-pub fn check() {
+pub fn check() -> Configuration {
     dotenv().ok();
 
     let c = envy::from_iter::<Vars, Configuration>(env::vars().into_iter())
-        .expect("Please provide DISCORD_TOKEN");
+        .expect("Please provide environment variables");
 
-    println!("{:#?}", c)
+    c
 }
 
 #[derive(Deserialize, Debug)]
 pub struct Configuration {
     pub discord_token: String,
+    pub guild_id: String,
 
     #[serde(default = "default_owner_id")]
     pub owner_id: String,

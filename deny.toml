@@ -22,7 +22,6 @@ allow = [
     "MIT",
     "Apache-2.0",
     "BSD-3-Clause",
-    "Unicode-DFS-2016"
 ]
 
 # Deny all unlicensed, copyleft and other not explicitly allowed licenses

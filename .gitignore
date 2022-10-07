@@ -1,1 +1,7 @@
 /target
+
+# snyk
+.dccache
+
+# env
+.env

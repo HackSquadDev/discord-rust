@@ -1,4 +1,4 @@
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use std::env::{self, Vars};
 
 use serde::Deserialize;

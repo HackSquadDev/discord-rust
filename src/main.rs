@@ -1,46 +1,25 @@
 use std::env;
 
-use serenity::framework::standard::macros::{command, group};
-use serenity::framework::standard::{CommandResult, StandardFramework};
-use serenity::model::channel::Message;
 use serenity::prelude::*;
 
 mod commands;
 mod environment;
 mod events;
 
-#[group]
-#[commands(ping)]
-struct General;
-
-struct Handler;
+use crate::events::Handler;
 
 #[tokio::main]
 async fn main() {
     environment::check();
 
-    let framework = StandardFramework::new()
-        .configure(|c| c.prefix("~")) // set the bot's prefix to "~"
-        .group(&GENERAL_GROUP);
-
-    // Login with a bot token from the environment
     let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN");
-    let intents = GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT;
-    let mut client = Client::builder(token, intents)
+
+    let mut client = Client::builder(token, GatewayIntents::empty())
         .event_handler(Handler)
-        .framework(framework)
         .await
         .expect("Error creating client");
 
-    // start listening for events by starting a single shard
     if let Err(why) = client.start().await {
         println!("An error occurred while running the client: {:?}", why);
     }
-}
-
-#[command]
-async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
-    msg.reply(ctx, "Pong!").await?;
-
-    Ok(())
 }

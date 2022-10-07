@@ -1,15 +1,13 @@
-use dotenvy::dotenv;
 use std::env::{self, Vars};
 
+use dotenvy::dotenv;
 use serde::Deserialize;
 
 pub fn check() -> Configuration {
     dotenv().ok();
 
-    let c = envy::from_iter::<Vars, Configuration>(env::vars().into_iter())
-        .expect("Please provide environment variables");
-
-    c
+    envy::from_iter::<Vars, Configuration>(env::vars())
+        .expect("Please provide environment variables")
 }
 
 #[derive(Deserialize, Debug)]

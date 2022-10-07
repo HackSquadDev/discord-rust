@@ -2,35 +2,22 @@ use std::env;
 
 use serenity::{
     async_trait,
-    model::prelude::{
-        interaction::{Interaction, InteractionResponseType},
-        GuildId, Ready,
-    },
+    model::prelude::{interaction::Interaction, GuildId, Ready},
     prelude::{Context, EventHandler},
 };
 
-use crate::{commands, Handler};
+use crate::commands;
+
+pub struct Handler;
 
 #[async_trait]
 impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
-            let content = match command.data.name.as_str() {
-                "id" => commands::id::run(&command.data.options),
-                "team" => commands::team::run(&command.data.options).await,
-                _ => "not implemented :(".to_string(),
+            match command.data.name.as_str() {
+                "team" => commands::team::run(command.clone(), ctx.clone()).await,
+                _ => todo!(),
             };
-
-            if let Err(why) = command
-                .create_interaction_response(&ctx.http, |response| {
-                    response
-                        .kind(InteractionResponseType::ChannelMessageWithSource)
-                        .interaction_response_data(|message| message.content(content))
-                })
-                .await
-            {
-                println!("Cannot respond to slash command: {}", why);
-            }
         }
     }
 
@@ -45,9 +32,7 @@ impl EventHandler for Handler {
         );
 
         let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
-            commands
-                .create_application_command(|command| commands::id::register(command))
-                .create_application_command(|command| commands::team::register(command))
+            commands.create_application_command(|command| commands::team::register(command))
         })
         .await;
 

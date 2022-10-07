@@ -11,10 +11,10 @@
 
 # TODO
 
-- [ ] Teams
-  - [ ] Score
-  - [ ] Total PRs
-  - [ ] Total PRs Deleted
+- [x] Teams
+  - [x] Score
+  - [x] Total PRs
+  - [x] Total PRs Deleted
 - [ ] Users
   - [ ] Search
   - [ ] Info (no email)

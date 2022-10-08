@@ -1,16 +1,7 @@
-use std::fmt::format;
-use std::sync::Arc;
-
 use serde::Deserialize;
-use serenity::builder::{CreateApplicationCommand, CreateEmbed, CreateMessage};
-use serenity::model::prelude::command::CommandOptionType;
-use serenity::model::prelude::interaction::application_command::{
-    ApplicationCommandInteraction, CommandDataOptionValue,
-};
-use serenity::model::prelude::interaction::InteractionResponseType;
-use serenity::model::prelude::{EmbedField, Message, Reaction, ReactionType};
+use serenity::builder::{CreateApplicationCommand, CreateEmbed};
+use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::Context;
-use serenity::utils::Colour;
 
 #[derive(Deserialize, Debug)]
 struct Response {
@@ -69,7 +60,7 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
                 message.set_embed(
                     pages[index]
                         .footer(|footer| {
-                            footer.text(format!("Page {} of {}", index + 1, pages_count + 1))
+                            footer.text(format!("Page {} of {}", index + 1, pages_count))
                         })
                         .clone(),
                 )

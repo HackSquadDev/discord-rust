@@ -2,7 +2,7 @@ use std::env;
 
 use serenity::{
     async_trait,
-    model::prelude::{command, interaction::Interaction, GuildId, Ready},
+    model::prelude::{interaction::Interaction, GuildId, Ready},
     prelude::{Context, EventHandler},
 };
 
@@ -33,7 +33,8 @@ impl EventHandler for Handler {
         );
 
         let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
-            commands.create_application_command(|command| commands::team::register(command))
+            commands.create_application_command(|command| commands::team::register(command));
+            commands.create_application_command(|command| commands::teams::register(command))
         })
         .await;
 

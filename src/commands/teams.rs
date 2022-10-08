@@ -44,7 +44,7 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
                         f.name.clone()
                     ),
                     format!("{} points", f.score),
-                    true,
+                    false,
                 )
             }))
             .clone();

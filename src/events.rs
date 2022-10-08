@@ -2,7 +2,7 @@ use std::env;
 
 use serenity::{
     async_trait,
-    model::prelude::{interaction::Interaction, GuildId, Ready},
+    model::prelude::{command, interaction::Interaction, GuildId, Ready},
     prelude::{Context, EventHandler},
 };
 
@@ -16,6 +16,7 @@ impl EventHandler for Handler {
         if let Interaction::ApplicationCommand(command) = interaction {
             match command.data.name.as_str() {
                 "team" => commands::team::run(command.clone(), ctx.clone()).await,
+                "teams" => commands::teams::run(command.clone(), ctx.clone()).await,
                 _ => todo!(),
             };
         }

@@ -1,3 +1,4 @@
+use std::fmt::format;
 use std::sync::Arc;
 
 use serde::Deserialize;
@@ -37,22 +38,42 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
 
     let mut pages = Vec::new();
 
-    for (index, e) in iter.enumerate() {
+    for (_index, e) in iter.enumerate() {
         let page = CreateEmbed::default()
-            .description("test")
-            .fields(
-                e.into_iter()
-                    .map(|f| (format!("#place {}", f.name.clone()), f.score, true)),
-            )
-            .footer(|footer| footer.text(index))
+            .fields(e.into_iter().map(|f| {
+                (
+                    format!(
+                        "#{} {}",
+                        api_response
+                            .teams
+                            .iter()
+                            .position(|r| r.slug == f.slug)
+                            .unwrap()
+                            + 1,
+                        f.name.clone()
+                    ),
+                    format!("{} points", f.score),
+                    true,
+                )
+            }))
             .clone();
 
         pages.push(page)
     }
 
+    let pages_count = pages.len();
+
     command
         .create_interaction_response(&ctx.http, |response| {
-            response.interaction_response_data(|message| message.set_embed(pages[index].clone()))
+            response.interaction_response_data(|message| {
+                message.set_embed(
+                    pages[index]
+                        .footer(|footer| {
+                            footer.text(format!("Page {} of {}", index + 1, pages_count + 1))
+                        })
+                        .clone(),
+                )
+            })
         })
         .await
         .unwrap();

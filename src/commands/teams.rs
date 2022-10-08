@@ -1,9 +1,14 @@
+use std::collections::HashMap;
+
 use serde::Deserialize;
 use serenity::builder::{CreateApplicationCommand, CreateButton, CreateEmbed};
 use serenity::model::prelude::component::ButtonStyle;
 use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
-use serenity::model::prelude::ReactionType;
+use serenity::model::prelude::interaction::Interaction;
+use serenity::model::prelude::{ReactionType, UserId};
 use serenity::prelude::Context;
+
+use crate::pagination::{self, Pagination};
 
 #[derive(Deserialize, Debug)]
 struct Response {
@@ -17,25 +22,17 @@ struct Team {
     slug: String,
 }
 
-fn button(name: &str, style: ButtonStyle, emoji: ReactionType) -> CreateButton {
-    let mut b = CreateButton::default();
-    b.emoji(emoji.clone());
-    b.label(name);
-    b.style(style);
-    b.custom_id(emoji);
-
-    b
-}
-
-pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
+pub async fn run(
+    command: ApplicationCommandInteraction,
+    ctx: Context,
+    paginations: HashMap<UserId, Pagination>,
+) {
     let api_response: Response = reqwest::get("https://www.hacksquad.dev/api/leaderboard")
         .await
         .unwrap()
         .json()
         .await
         .unwrap();
-
-    let index = 0;
 
     let iter = api_response.teams.chunks(10);
 
@@ -64,51 +61,11 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
         pages.push(page)
     }
 
-    let pages_count = pages.len();
+    let pagination = Pagination::new(pages);
 
-    command
-        .create_interaction_response(&ctx.http, |response| {
-            response.interaction_response_data(|message| {
-                message.components(|c| {
-                    c.create_action_row(|r| {
-                        r.add_button(button(
-                            "First",
-                            ButtonStyle::Primary,
-                            ReactionType::Unicode("⏮️".to_string()),
-                        ));
-                        r.add_button(button(
-                            "Prev",
-                            ButtonStyle::Primary,
-                            ReactionType::Unicode("◀️".to_string()),
-                        ));
-                        r.add_button(button(
-                            "Stop",
-                            ButtonStyle::Danger,
-                            ReactionType::Unicode("⏹️".to_string()),
-                        ));
-                        r.add_button(button(
-                            "Next",
-                            ButtonStyle::Primary,
-                            ReactionType::Unicode("▶️".to_string()),
-                        ));
-                        r.add_button(button(
-                            "Last",
-                            ButtonStyle::Primary,
-                            ReactionType::Unicode("⏭️".to_string()),
-                        ))
-                    })
-                });
-                message.set_embed(
-                    pages[index]
-                        .footer(|footer| {
-                            footer.text(format!("Page {} of {}", index + 1, pages_count))
-                        })
-                        .clone(),
-                )
-            })
-        })
-        .await
-        .unwrap();
+    pagination.handle_message(ctx, command).await;
+
+    paginations.push(pagination)
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {

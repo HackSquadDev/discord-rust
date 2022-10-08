@@ -5,6 +5,7 @@ use serenity::prelude::*;
 mod commands;
 mod environment;
 mod events;
+mod pagination;
 
 use crate::events::Handler;
 

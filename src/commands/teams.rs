@@ -40,11 +40,11 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
     for (index, e) in iter.enumerate() {
         let page = CreateEmbed::default()
             .description("test")
-            .field(e[0].name.clone(), e[0].score, true)
             .fields(
                 e.into_iter()
                     .map(|f| (format!("#place {}", f.name.clone()), f.score, true)),
             )
+            .footer(|footer| footer.text(index))
             .clone();
 
         pages.push(page)

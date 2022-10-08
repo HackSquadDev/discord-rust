@@ -1,11 +1,14 @@
 use serde::Deserialize;
-use serenity::builder::CreateApplicationCommand;
+use serenity::builder::{CreateApplicationCommand, CreateButton};
 use serenity::model::prelude::command::CommandOptionType;
+use serenity::model::prelude::component::ButtonStyle;
 use serenity::model::prelude::interaction::application_command::{
     ApplicationCommandInteraction, CommandDataOptionValue,
 };
 use serenity::model::prelude::interaction::InteractionResponseType;
+use serenity::model::prelude::ReactionType;
 use serenity::prelude::Context;
+use serenity::utils::Colour;
 
 #[derive(Deserialize)]
 struct Response {
@@ -14,21 +17,25 @@ struct Response {
 
 #[derive(Deserialize)]
 struct Team {
-    id: String,
     name: String,
-    slug: String,
     score: u32,
-    ownerId: String,
     prs: String,
+    slug: String,
 }
 
 #[derive(Deserialize)]
 struct PR {
-    id: String,
-    createdAt: String,
-    title: String,
-    url: String,
     status: Option<String>,
+}
+
+fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
+    let mut b = CreateButton::default();
+    b.url(link);
+    b.emoji(emoji);
+    b.label(name);
+    b.style(ButtonStyle::Link);
+
+    b
 }
 
 pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
@@ -42,7 +49,7 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
         .expect("Expected string object");
 
     if let CommandDataOptionValue::String(team_id) = option {
-        let response: Response = reqwest::get(&format!(
+        let api_response: Response = reqwest::get(&format!(
             "https://www.hacksquad.dev/api/team?id={}",
             team_id
         ))
@@ -52,7 +59,7 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
         .await
         .unwrap();
 
-        let all_prs: Vec<PR> = serde_json::from_str(&response.team.prs).unwrap();
+        let all_prs: Vec<PR> = serde_json::from_str(&api_response.team.prs).unwrap();
         let mut deleted = 0;
         for pr in all_prs {
             if pr.status.is_some() {
@@ -61,10 +68,10 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
         }
 
         let data = format!(
-            "Name: {}\nScore: {}\nTotal PRs: {}\nTotal PRs Deleted: {}",
-            response.team.name,
-            response.team.score,
-            response.team.score + deleted,
+            "**Name:** {}\n**Score:** {}\n**Total PRs:** {}\n**Total PRs Deleted:** {}",
+            api_response.team.name,
+            api_response.team.score,
+            api_response.team.score + deleted,
             deleted
         );
 
@@ -73,7 +80,14 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
                 response
                     .kind(InteractionResponseType::ChannelMessageWithSource)
                     .interaction_response_data(|message| {
-                        message.embed(|e| e.title("HackSquad Team Information").description(data))
+                        message.components(|c|{
+                            c.create_action_row(|r|{
+                                r.add_button(link_button("Team Page", format!("https://hacksquad.dev/team/{}", api_response.team.slug), "🔗".parse().unwrap()))
+                            })
+                        });
+                        message.embed(|e| e.title("HackSquad Team Information").description(data)
+                        .color(Colour::BLITZ_BLUE)
+                        .thumbnail("https://cdn.discordapp.com/emojis/1026095278941552690.webp?size=128&quality=lossless"))
                     })
             })
             .await

@@ -1,6 +1,8 @@
 use serde::Deserialize;
-use serenity::builder::{CreateApplicationCommand, CreateEmbed};
+use serenity::builder::{CreateApplicationCommand, CreateButton, CreateEmbed};
+use serenity::model::prelude::component::ButtonStyle;
 use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
+use serenity::model::prelude::ReactionType;
 use serenity::prelude::Context;
 
 #[derive(Deserialize, Debug)]
@@ -13,6 +15,16 @@ struct Team {
     name: String,
     score: u32,
     slug: String,
+}
+
+fn button(name: &str, style: ButtonStyle, emoji: ReactionType) -> CreateButton {
+    let mut b = CreateButton::default();
+    b.emoji(emoji.clone());
+    b.label(name);
+    b.style(style);
+    b.custom_id(emoji);
+
+    b
 }
 
 pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
@@ -57,6 +69,35 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
     command
         .create_interaction_response(&ctx.http, |response| {
             response.interaction_response_data(|message| {
+                message.components(|c| {
+                    c.create_action_row(|r| {
+                        r.add_button(button(
+                            "First",
+                            ButtonStyle::Primary,
+                            ReactionType::Unicode("⏮️".to_string()),
+                        ));
+                        r.add_button(button(
+                            "Prev",
+                            ButtonStyle::Primary,
+                            ReactionType::Unicode("◀️".to_string()),
+                        ));
+                        r.add_button(button(
+                            "Stop",
+                            ButtonStyle::Danger,
+                            ReactionType::Unicode("⏹️".to_string()),
+                        ));
+                        r.add_button(button(
+                            "Next",
+                            ButtonStyle::Primary,
+                            ReactionType::Unicode("▶️".to_string()),
+                        ));
+                        r.add_button(button(
+                            "Last",
+                            ButtonStyle::Primary,
+                            ReactionType::Unicode("⏭️".to_string()),
+                        ))
+                    })
+                });
                 message.set_embed(
                     pages[index]
                         .footer(|footer| {

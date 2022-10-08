@@ -11,7 +11,7 @@ use serenity::{
 pub struct Pagination<'a> {
     pages: Vec<CreateEmbed>,
     index: usize,
-    author: &'a mut Option<User>,
+    pub author: &'a mut Option<User>,
 }
 
 impl Pagination<'_> {
@@ -26,8 +26,8 @@ impl Pagination<'_> {
     pub async fn handle_message(&mut self, ctx: Context, command: ApplicationCommandInteraction) {
         let pages_count = self.pages.len();
 
-        
-        self.author = Some(command.user)
+        let mut author = Some(command.user.clone());
+        self.author = &mut author;
 
         command
             .create_interaction_response(&ctx.http, |response| {

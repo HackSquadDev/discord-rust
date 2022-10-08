@@ -25,7 +25,7 @@ struct Team {
 pub async fn run(
     command: ApplicationCommandInteraction,
     ctx: Context,
-    paginations: HashMap<UserId, Pagination>,
+    mut paginations: HashMap<UserId, Pagination<'_>>,
 ) {
     let api_response: Response = reqwest::get("https://www.hacksquad.dev/api/leaderboard")
         .await
@@ -61,11 +61,11 @@ pub async fn run(
         pages.push(page)
     }
 
-    let pagination = Pagination::new(pages);
+    let mut pagination = Pagination::new(pages);
 
     pagination.handle_message(ctx, command).await;
 
-    paginations.push(pagination)
+    paginations.insert(pagination.author.clone().unwrap().id, pagination);
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {

@@ -8,6 +8,7 @@ use serenity::{
     prelude::Context,
 };
 
+#[derive(Debug)]
 pub struct Pagination {
     pages: Vec<CreateEmbed>,
     index: usize,
@@ -54,7 +55,7 @@ impl Pagination {
             .unwrap();
     }
 
-    pub async fn handle_interaction(_ctx: &Context, interaction: Interaction) {
+    pub fn handle_interaction(&self, _ctx: &Context, interaction: Interaction) {
         if let Interaction::MessageComponent(component) = interaction {
             match component.data.custom_id.as_str() {
                 "⏮️" => {

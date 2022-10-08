@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env};
+use std::{collections::HashMap, env, sync::Mutex};
 
 use serenity::{
     async_trait,
@@ -21,9 +21,14 @@ impl EventHandler for Handler {
                 "teams" => commands::teams::run(command.clone(), ctx.clone(), paginations).await,
                 _ => todo!(),
             },
-            Interaction::MessageComponent(ref b) => match b.data.custom_id.as_str() {
-                _ => todo!("hmm"),
-            },
+            Interaction::MessageComponent(ref b) => {
+                match b.data.custom_id.as_str() {
+                    _ => {
+                        commands::teams::handle_interaction(&ctx, interaction.clone(), paginations)
+                    }
+                }
+                .await
+            }
             _ => {}
         }
     }

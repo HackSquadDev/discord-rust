@@ -1,8 +1,10 @@
 use std::collections::HashMap;
+use std::sync::Mutex;
 
 use serde::Deserialize;
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
 use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
+use serenity::model::prelude::interaction::Interaction;
 use serenity::model::prelude::UserId;
 use serenity::prelude::Context;
 
@@ -64,6 +66,23 @@ pub async fn run(
     pagination.handle_message(ctx, command).await;
 
     paginations.insert(pagination.author.clone().unwrap().id, pagination);
+}
+
+pub async fn handle_interaction(
+    ctx: &Context,
+    interaction: Interaction,
+    paginations: HashMap<UserId, Pagination>,
+) {
+    let pagination = paginations.get(&interaction.clone().message_component().unwrap().user.id);
+
+    println!("{:?}", paginations);
+    println!(
+        "{:?}",
+        &interaction.clone().message_component().unwrap().user.id
+    );
+    println!("{:?}", pagination);
+
+    pagination.unwrap().handle_interaction(ctx, interaction)
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {

@@ -38,9 +38,20 @@ impl EventHandler for Handler {
         })
         .await;
 
+        let mut slash_command_names: Vec<String> = Vec::new();
+
+        match commands {
+            Ok(commands) => {
+                for command in commands {
+                    slash_command_names.push(command.name)
+                }
+            }
+            Err(_) => todo!(),
+        }
+
         println!(
             "I now have the following guild slash commands: {:#?}",
-            commands
+            slash_command_names
         );
     }
 }

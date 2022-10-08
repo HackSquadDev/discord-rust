@@ -1,11 +1,8 @@
-use std::{collections::HashMap, env, sync::Arc};
+use std::{collections::HashMap, env};
 
 use serenity::{
     async_trait,
-    model::{
-        prelude::{interaction::Interaction, GuildId, Ready, UserId},
-        user::User,
-    },
+    model::prelude::{interaction::Interaction, GuildId, Ready, UserId},
     prelude::{Context, EventHandler},
 };
 

@@ -1,14 +1,12 @@
 use std::collections::HashMap;
 
 use serde::Deserialize;
-use serenity::builder::{CreateApplicationCommand, CreateButton, CreateEmbed};
-use serenity::model::prelude::component::ButtonStyle;
+use serenity::builder::{CreateApplicationCommand, CreateEmbed};
 use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
-use serenity::model::prelude::interaction::Interaction;
-use serenity::model::prelude::{ReactionType, UserId};
+use serenity::model::prelude::UserId;
 use serenity::prelude::Context;
 
-use crate::pagination::{self, Pagination};
+use crate::pagination::Pagination;
 
 #[derive(Deserialize, Debug)]
 struct Response {
@@ -25,7 +23,7 @@ struct Team {
 pub async fn run(
     command: ApplicationCommandInteraction,
     ctx: Context,
-    mut paginations: HashMap<UserId, Pagination<'_>>,
+    mut paginations: HashMap<UserId, Pagination>,
 ) {
     let api_response: Response = reqwest::get("https://www.hacksquad.dev/api/leaderboard")
         .await

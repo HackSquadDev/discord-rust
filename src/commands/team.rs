@@ -29,13 +29,12 @@ struct PR {
 }
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
-    let mut b = CreateButton::default();
-    b.url(link);
-    b.emoji(emoji);
-    b.label(name);
-    b.style(ButtonStyle::Link);
-
-    b
+    CreateButton::default()
+        .url(link)
+        .emoji(emoji)
+        .label(name)
+        .style(ButtonStyle::Link)
+        .to_owned()
 }
 
 pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {

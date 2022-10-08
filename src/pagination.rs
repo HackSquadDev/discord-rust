@@ -8,26 +8,25 @@ use serenity::{
     prelude::Context,
 };
 
-pub struct Pagination<'a> {
+pub struct Pagination {
     pages: Vec<CreateEmbed>,
     index: usize,
-    pub author: &'a mut Option<User>,
+    pub author: Option<User>,
 }
 
-impl Pagination<'_> {
+impl Pagination {
     pub fn new(pages: Vec<CreateEmbed>) -> Self {
         Self {
             pages,
             index: 0,
-            author: &mut None,
+            author: None,
         }
     }
 
     pub async fn handle_message(&mut self, ctx: Context, command: ApplicationCommandInteraction) {
         let pages_count = self.pages.len();
 
-        let mut author = Some(command.user.clone());
-        self.author = &mut author;
+        self.author = Some(command.user.clone());
 
         command
             .create_interaction_response(&ctx.http, |response| {
@@ -71,11 +70,10 @@ impl Pagination<'_> {
 }
 
 fn button(name: &str, style: ButtonStyle, emoji: &str) -> CreateButton {
-    let mut b = CreateButton::default();
-    b.emoji(ReactionType::Unicode(emoji.clone().to_string()));
-    b.label(name);
-    b.style(style);
-    b.custom_id(emoji);
-
-    b
+    CreateButton::default()
+        .emoji(ReactionType::Unicode(emoji.clone().to_string()))
+        .label(name)
+        .style(style)
+        .custom_id(emoji)
+        .to_owned()
 }

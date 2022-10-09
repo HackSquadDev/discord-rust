@@ -71,11 +71,12 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
         }
 
         let data = format!(
-            "**Name:** {}\n**Score:** {}\n**Total PRs:** {}\n**Total PRs Deleted:** {}",
+            "**Name:** {}\n**Score:** {}\n**Total PRs:** {}\n**Total PRs Deleted:** {}\n**Slug:** {}",
             api_response.team.name,
             api_response.team.score,
             api_response.team.score + deleted,
-            deleted
+            deleted,
+            api_response.team.slug
         );
 
         command

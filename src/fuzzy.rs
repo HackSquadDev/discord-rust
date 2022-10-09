@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use simsearch::SimSearch;
+use simsearch::{SearchOptions, SimSearch};
 
 #[derive(Deserialize, Debug)]
 struct Response {
@@ -28,13 +28,29 @@ pub async fn search_teams(query: Option<Value>) -> Value {
             .await
             .unwrap();
 
-        let mut engine = SimSearch::new();
+        let mut engine =
+            SimSearch::new_with(SearchOptions::new().case_sensitive(false).threshold(0.96));
 
         for team in &api_response.teams {
             engine.insert(team.slug.clone(), &team.name);
         }
 
-        let mut res = engine.search(&query.to_string());
+        let query: String = serde_json::from_value(query.clone()).unwrap();
+
+        let mut res = engine.search(&query);
+
+        if res.len() == 0 {
+            for team in &api_response.teams {
+                res.push(team.slug.clone())
+            }
+
+            if query.is_empty() {
+                ()
+            }
+
+            res.retain(|x| x.starts_with(&query));
+        }
+
         res.truncate(10);
 
         let iter = res.iter_mut();

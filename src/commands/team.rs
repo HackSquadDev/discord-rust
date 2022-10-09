@@ -33,17 +33,18 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
         .expect("Expected string object");
 
     if let CommandDataOptionValue::String(team_id) = option {
-        let team = get_team(&team_id).await;
+        let team = get_team(team_id).await;
 
-        let all_prs: Vec<PR> = serde_json::from_str(&team.prs).unwrap();
-        let mut deleted = 0;
-        for pr in all_prs {
-            if pr.status.is_some() {
-                deleted += 1;
+        if let Some(prs) = team.prs {
+            let all_prs: Vec<PR> = serde_json::from_str(&prs).unwrap();
+            let mut deleted = 0;
+            for pr in all_prs {
+                if pr.status.is_some() {
+                    deleted += 1;
+                }
             }
-        }
 
-        let data = format!(
+            let data = format!(
             "**Name:** {}\n**Score:** {}\n**Total PRs:** {}\n**Total PRs Deleted:** {}\n**Slug:** {}",
             team.name,
             team.score,
@@ -52,7 +53,7 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
             team.slug
         );
 
-        command
+            command
             .create_interaction_response(&ctx.http, |response| {
                 response
                     .kind(InteractionResponseType::ChannelMessageWithSource)
@@ -69,6 +70,7 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
             })
             .await
             .unwrap();
+        }
     } else {
         command
             .create_interaction_response(&ctx.http, |response| {

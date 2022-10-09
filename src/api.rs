@@ -15,10 +15,10 @@ pub struct Team {
     pub name: String,
     pub score: u32,
     pub slug: String,
-    pub prs: String,
+    pub prs: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct PR {
     pub status: Option<String>,
 }

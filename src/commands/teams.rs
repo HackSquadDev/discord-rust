@@ -36,7 +36,7 @@ pub async fn run(
     let mut pages = Vec::new();
     for team_list in api_response.teams.chunks(10) {
         let page = CreateEmbed::default()
-            .fields(team_list.into_iter().map(|f| {
+            .fields(team_list.iter().map(|f| {
                 (
                     format!(
                         "#{} {}",

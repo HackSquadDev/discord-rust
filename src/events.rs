@@ -23,13 +23,8 @@ impl EventHandler for Handler {
                 }
                 _ => todo!(),
             },
-            Interaction::MessageComponent(ref b) => {
-                match b.data.custom_id.as_str() {
-                    _ => {
-                        commands::teams::handle_interaction(&ctx, interaction.clone(), &paginations)
-                    }
-                }
-                .await
+            Interaction::MessageComponent(_) => {
+                commands::teams::handle_interaction(&ctx, interaction.clone(), &paginations).await
             }
             Interaction::Autocomplete(ref command) => match command.data.name.as_str() {
                 "team" => {

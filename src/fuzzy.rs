@@ -39,14 +39,12 @@ pub async fn search_teams(query: Option<Value>) -> Value {
 
         let mut res = engine.search(&query);
 
-        if res.len() == 0 {
+        if res.is_empty() {
             for team in &api_response.teams {
                 res.push(team.slug.clone())
             }
 
-            if query.is_empty() {
-                ()
-            }
+            if query.is_empty() {}
 
             res.retain(|x| x.starts_with(&query));
         }

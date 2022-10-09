@@ -63,16 +63,16 @@ impl Pagination {
                 }
                 _ => {
                     println!("Unknown interaction: {}", component.data.custom_id);
-                    return;
                 }
             }
         }
     }
 }
 
+#[allow(clippy::clone_double_ref)]
 fn button(name: &str, style: ButtonStyle, emoji: &str) -> CreateButton {
     CreateButton::default()
-        .emoji(ReactionType::Unicode(emoji.clone().to_string()))
+        .emoji(ReactionType::Unicode(emoji.to_string()))
         .label(name)
         .style(style)
         .custom_id(emoji)

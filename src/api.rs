@@ -1,7 +1,6 @@
-use redis::{Commands, RedisError};
-use redis_derive::{FromRedisValue, ToRedisArgs};
+use redis::RedisError;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::json;
 
 use crate::DATABASE;
 

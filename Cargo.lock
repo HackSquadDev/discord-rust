@@ -190,7 +190,6 @@ dependencies = [
  "envy",
  "lazy_static",
  "redis",
- "redis-derive",
  "reqwest",
  "serde",
  "serde_json",
@@ -791,18 +790,6 @@ dependencies = [
  "ryu",
  "sha1",
  "url",
-]
-
-[[package]]
-name = "redis-derive"
-version = "0.1.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "272596dc88e664ab28f15a6c4561a9928c4b41585be7b692305a2267ef57ba1e"
-dependencies = [
- "quote",
- "redis",
- "serde",
- "syn",
 ]
 
 [[package]]

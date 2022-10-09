@@ -1,4 +1,4 @@
-use redis::{Client, Cmd, Commands, Connection, RedisError};
+use redis::{Client, Commands, Connection, RedisError};
 
 use crate::environment::Configuration;
 

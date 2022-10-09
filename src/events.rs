@@ -13,18 +13,20 @@ pub struct Handler;
 #[async_trait]
 impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
-        let paginations: HashMap<UserId, Pagination> = HashMap::new();
+        let mut paginations: HashMap<UserId, Pagination> = HashMap::new();
 
         match interaction {
             Interaction::ApplicationCommand(ref command) => match command.data.name.as_str() {
                 "team" => commands::team::run(command.clone(), ctx.clone()).await,
-                "teams" => commands::teams::run(command.clone(), ctx.clone(), paginations).await,
+                "teams" => {
+                    commands::teams::run(command.clone(), ctx.clone(), &mut paginations).await
+                }
                 _ => todo!(),
             },
             Interaction::MessageComponent(ref b) => {
                 match b.data.custom_id.as_str() {
                     _ => {
-                        commands::teams::handle_interaction(&ctx, interaction.clone(), paginations)
+                        commands::teams::handle_interaction(&ctx, interaction.clone(), &paginations)
                     }
                 }
                 .await

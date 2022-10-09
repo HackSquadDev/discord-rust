@@ -29,14 +29,13 @@ pub struct PR {
 }
 
 pub async fn get_teams() -> Vec<Team> {
-    let mut conn = DATABASE.lock().await.get_connection();
-    let redis_leaderboard: Result<String, RedisError> = conn.get("leaderboard");
+    let db = DATABASE.lock().await;
+
+    let redis_leaderboard: Result<String, RedisError> = db.get("leaderboard");
 
     match redis_leaderboard {
         Ok(data) => serde_json::from_str(&data).unwrap(),
         Err(_) => {
-            //TODO: save to redis
-            println!("APIIIII");
             let api_response: TeamsResponse =
                 reqwest::get("https://www.hacksquad.dev/api/leaderboard")
                     .await
@@ -45,11 +44,7 @@ pub async fn get_teams() -> Vec<Team> {
                     .await
                     .unwrap();
 
-            redis::pipe()
-                .cmd("SET")
-                .arg("leaderboard")
-                .arg(json!(api_response.teams).to_string())
-                .execute(&mut conn);
+            db.save("leaderboard", &json!(api_response.teams).to_string(), 60);
 
             api_response.teams
         }

@@ -29,7 +29,7 @@ pub async fn search_teams(query: Option<Value>) -> Value {
             .unwrap();
 
         let mut engine =
-            SimSearch::new_with(SearchOptions::new().case_sensitive(false).threshold(0.96));
+            SimSearch::new_with(SearchOptions::new().case_sensitive(false).threshold(0.82));
 
         for team in &api_response.teams {
             engine.insert(team.slug.clone(), &team.name);

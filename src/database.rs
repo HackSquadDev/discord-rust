@@ -1,11 +1,19 @@
 use redis::{Client, Cmd, Commands, Connection, RedisError};
 
+use crate::environment::Configuration;
+
 #[derive(Default)]
 pub struct Database {
     client: Option<Client>,
+    config: Configuration,
 }
 
 impl Database {
+    pub fn initialize(&mut self, config: &Configuration) {
+        self.config = config.clone();
+        self.establish_connection(self.config.redis_uri.clone());
+    }
+
     pub fn establish_connection(&mut self, connection_string: String) {
         let client = Client::open(connection_string);
 
@@ -36,7 +44,7 @@ impl Database {
         }
     }
 
-    pub fn save(&self, key: &str, value: &str, ttl_seconds: usize) {
+    pub fn save(&self, key: &str, value: &str) {
         let mut con = self.get_connection();
 
         redis::pipe()
@@ -45,7 +53,7 @@ impl Database {
             .arg(value)
             .cmd("EXPIRE")
             .arg(key)
-            .arg(ttl_seconds)
+            .arg(self.config.cache_leaderboard_ttl)
             .execute(&mut con);
     }
 

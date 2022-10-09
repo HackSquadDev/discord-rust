@@ -24,12 +24,12 @@ lazy_static! {
 async fn main() {
     let config = environment::check();
 
-    let mut client = Client::builder(config.discord_token, GatewayIntents::empty())
+    let mut client = Client::builder(&config.discord_token, GatewayIntents::empty())
         .event_handler(Handler)
         .await
         .expect("Error creating client");
 
-    DATABASE.lock().await.establish_connection(config.redis_uri);
+    DATABASE.lock().await.initialize(&config);
 
     if let Err(why) = client.start().await {
         println!("An error occurred while running the client: {:?}", why);

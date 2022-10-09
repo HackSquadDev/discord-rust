@@ -44,7 +44,7 @@ pub async fn get_teams() -> Vec<Team> {
                     .await
                     .unwrap();
 
-            db.save("leaderboard", &json!(api_response.teams).to_string(), 60);
+            db.save("leaderboard", &json!(api_response.teams).to_string());
 
             api_response.teams
         }

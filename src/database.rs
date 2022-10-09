@@ -1,4 +1,4 @@
-use redis::Client;
+use redis::{Client, Cmd, Connection};
 
 #[derive(Default)]
 pub struct Database {
@@ -15,6 +15,24 @@ impl Database {
                 self.client = Some(client)
             }
             Err(error) => todo!("{}", error),
+        }
+    }
+
+    pub fn get_client(&self) -> &Client {
+        let client = &self.client;
+
+        match client {
+            Some(client) => client,
+            None => todo!("this is not good"),
+        }
+    }
+
+    pub fn get_connection(&self) -> Connection {
+        let con = self.get_client().get_connection();
+
+        match con {
+            Ok(con) => con,
+            Err(_) => todo!("Did someone forgot to initialize connection?"),
         }
     }
 }

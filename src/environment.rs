@@ -14,6 +14,7 @@ pub fn check() -> Configuration {
 pub struct Configuration {
     pub discord_token: String,
     pub guild_id: String,
+    pub redis_uri: String,
 
     #[serde(default = "default_owner_id")]
     pub owner_id: String,

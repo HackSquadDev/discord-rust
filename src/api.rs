@@ -1,4 +1,3 @@
-use redis::RedisError;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -30,7 +29,7 @@ pub struct PR {
 pub async fn get_teams() -> Vec<Team> {
     let db = DATABASE.lock().await;
 
-    let redis_leaderboard: Result<String, RedisError> = db.get("leaderboard");
+    let redis_leaderboard = db.get("leaderboard");
 
     match redis_leaderboard {
         Ok(data) => serde_json::from_str(&data).unwrap(),
@@ -51,16 +50,29 @@ pub async fn get_teams() -> Vec<Team> {
 }
 
 pub async fn get_team(team_id: &String) -> Team {
-    //TODO: add caching here
-    let api_response: TeamResponse = reqwest::get(&format!(
-        "https://www.hacksquad.dev/api/team?id={}",
-        team_id
-    ))
-    .await
-    .unwrap()
-    .json()
-    .await
-    .unwrap();
+    let db = DATABASE.lock().await;
 
-    api_response.team
+    let redis_team = db.get(&format!("team:{}", team_id).to_string());
+
+    match redis_team {
+        Ok(data) => serde_json::from_str(&data).unwrap(),
+        Err(_) => {
+            let api_response: TeamResponse = reqwest::get(&format!(
+                "https://www.hacksquad.dev/api/team?id={}",
+                team_id
+            ))
+            .await
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
+
+            db.save(
+                &format!("team:{}", team_id).to_string(),
+                &json!(api_response.team).to_string(),
+            );
+
+            api_response.team
+        }
+    }
 }

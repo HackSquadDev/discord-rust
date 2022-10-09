@@ -19,6 +19,9 @@ pub struct Configuration {
     #[serde(default = "default_leaderboards_ttl")]
     pub cache_leaderboard_ttl: usize,
 
+    #[serde(default = "default_team_ttl")]
+    pub cache_team_ttl: usize,
+
     #[serde(default = "default_owner_id")]
     pub owner_id: String,
 }
@@ -30,12 +33,17 @@ impl Default for Configuration {
             guild_id: "".to_string(),
             redis_uri: "".to_string(),
             cache_leaderboard_ttl: default_leaderboards_ttl(),
+            cache_team_ttl: default_team_ttl(),
             owner_id: default_owner_id(),
         }
     }
 }
 
 fn default_leaderboards_ttl() -> usize {
+    60
+}
+
+fn default_team_ttl() -> usize {
     60
 }
 

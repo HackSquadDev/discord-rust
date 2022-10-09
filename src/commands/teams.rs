@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::sync::Mutex;
 
 use serde::Deserialize;
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
@@ -34,13 +33,10 @@ pub async fn run(
         .await
         .unwrap();
 
-    let iter = api_response.teams.chunks(10);
-
     let mut pages = Vec::new();
-
-    for (_index, e) in iter.enumerate() {
+    for team_list in api_response.teams.chunks(10) {
         let page = CreateEmbed::default()
-            .fields(e.into_iter().map(|f| {
+            .fields(team_list.into_iter().map(|f| {
                 (
                     format!(
                         "#{} {}",
@@ -57,15 +53,15 @@ pub async fn run(
                 )
             }))
             .clone();
-
         pages.push(page)
     }
 
     let mut pagination = Pagination::new(pages);
+    // println!("Pagination in initial request {:#?}", pagination);
+    pagination.handle_message(ctx, command.clone()).await;
 
-    pagination.handle_message(ctx, command).await;
-
-    paginations.insert(pagination.author.clone().unwrap().id, pagination);
+    paginations.insert(command.user.id, pagination);
+    // println!("Paginations in initial request {:#?}", paginations);
 }
 
 pub async fn handle_interaction(
@@ -75,14 +71,17 @@ pub async fn handle_interaction(
 ) {
     let pagination = paginations.get(&interaction.clone().message_component().unwrap().user.id);
 
-    println!("{:?}", paginations);
-    println!(
-        "{:?}",
-        &interaction.clone().message_component().unwrap().user.id
-    );
-    println!("{:?}", pagination);
+    // println!("Paginations {:?}", paginations);
+    // println!(
+    //     "Interaction cloned user id in message component{:?}",
+    //     &interaction.clone().message_component().unwrap().user.id
+    // );
+    // println!("Pagination in handle interaction {:?}", pagination);
 
-    pagination.unwrap().handle_interaction(ctx, interaction)
+    match pagination {
+        Some(page) => page.handle_interaction(ctx, interaction),
+        None => println!("No pagination found"),
+    }
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {

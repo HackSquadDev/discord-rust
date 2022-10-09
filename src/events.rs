@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env, sync::Mutex};
+use std::{collections::HashMap, env};
 
 use serenity::{
     async_trait,

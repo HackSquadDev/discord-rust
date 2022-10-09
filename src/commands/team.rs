@@ -1,5 +1,4 @@
 use serde::Deserialize;
-use serde_json::json;
 use serenity::builder::{CreateApplicationCommand, CreateButton};
 use serenity::model::application::interaction::autocomplete::AutocompleteInteraction;
 use serenity::model::prelude::command::CommandOptionType;

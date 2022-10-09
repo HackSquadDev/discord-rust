@@ -1,4 +1,3 @@
-use serde::Deserialize;
 use serenity::builder::{CreateApplicationCommand, CreateButton};
 use serenity::model::application::interaction::autocomplete::AutocompleteInteraction;
 use serenity::model::prelude::command::CommandOptionType;
@@ -11,25 +10,8 @@ use serenity::model::prelude::ReactionType;
 use serenity::prelude::Context;
 use serenity::utils::Colour;
 
+use crate::api::{get_team, PR};
 use crate::fuzzy::search_teams;
-
-#[derive(Deserialize)]
-struct Response {
-    team: Team,
-}
-
-#[derive(Deserialize)]
-struct Team {
-    name: String,
-    score: u32,
-    prs: String,
-    slug: String,
-}
-
-#[derive(Deserialize)]
-struct PR {
-    status: Option<String>,
-}
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
     CreateButton::default()
@@ -51,17 +33,9 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
         .expect("Expected string object");
 
     if let CommandDataOptionValue::String(team_id) = option {
-        let api_response: Response = reqwest::get(&format!(
-            "https://www.hacksquad.dev/api/team?id={}",
-            team_id
-        ))
-        .await
-        .unwrap()
-        .json()
-        .await
-        .unwrap();
+        let team = get_team(&team_id).await;
 
-        let all_prs: Vec<PR> = serde_json::from_str(&api_response.team.prs).unwrap();
+        let all_prs: Vec<PR> = serde_json::from_str(&team.prs).unwrap();
         let mut deleted = 0;
         for pr in all_prs {
             if pr.status.is_some() {
@@ -71,11 +45,11 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
 
         let data = format!(
             "**Name:** {}\n**Score:** {}\n**Total PRs:** {}\n**Total PRs Deleted:** {}\n**Slug:** {}",
-            api_response.team.name,
-            api_response.team.score,
-            api_response.team.score + deleted,
+            team.name,
+            team.score,
+            team.score + deleted,
             deleted,
-            api_response.team.slug
+            team.slug
         );
 
         command
@@ -85,7 +59,7 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
                     .interaction_response_data(|message| {
                         message.components(|c|{
                             c.create_action_row(|r|{
-                                r.add_button(link_button("Team Page", format!("https://hacksquad.dev/team/{}", api_response.team.slug), "🔗".parse().unwrap()))
+                                r.add_button(link_button("Team Page", format!("https://hacksquad.dev/team/{}", team.slug), "🔗".parse().unwrap()))
                             })
                         });
                         message.embed(|e| e.title("HackSquad Team Information").description(data)

@@ -2,6 +2,7 @@ use std::env;
 
 use serenity::prelude::*;
 
+mod api;
 mod commands;
 mod environment;
 mod events;

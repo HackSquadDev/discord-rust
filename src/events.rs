@@ -31,6 +31,12 @@ impl EventHandler for Handler {
                 }
                 .await
             }
+            Interaction::Autocomplete(ref command) => match command.data.name.as_str() {
+                "team" => {
+                    commands::team::handle_autocomplete(&ctx, command, interaction.clone()).await
+                }
+                a => todo!("{}", a),
+            },
             _ => {}
         }
     }

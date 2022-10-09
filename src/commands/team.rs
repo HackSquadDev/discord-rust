@@ -1,14 +1,18 @@
 use serde::Deserialize;
+use serde_json::json;
 use serenity::builder::{CreateApplicationCommand, CreateButton};
+use serenity::model::application::interaction::autocomplete::AutocompleteInteraction;
 use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::component::ButtonStyle;
 use serenity::model::prelude::interaction::application_command::{
     ApplicationCommandInteraction, CommandDataOptionValue,
 };
-use serenity::model::prelude::interaction::InteractionResponseType;
+use serenity::model::prelude::interaction::{Interaction, InteractionResponseType};
 use serenity::model::prelude::ReactionType;
 use serenity::prelude::Context;
 use serenity::utils::Colour;
+
+use crate::fuzzy::search_teams;
 
 #[derive(Deserialize)]
 struct Response {
@@ -105,6 +109,19 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
     }
 }
 
+pub async fn handle_autocomplete(
+    ctx: &Context,
+    command: &AutocompleteInteraction,
+    _interaction: Interaction,
+) {
+    let search = search_teams(command.data.options[0].value.clone()).await;
+
+    command
+        .create_autocomplete_response(&ctx.http, |response| response.set_choices(search))
+        .await
+        .unwrap();
+}
+
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
     command
         .name("team")
@@ -114,6 +131,7 @@ pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicatio
                 .name("id")
                 .description("The id of the team to look for")
                 .kind(CommandOptionType::String)
+                .set_autocomplete(true)
                 .required(true)
         })
 }

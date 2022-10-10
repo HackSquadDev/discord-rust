@@ -27,7 +27,7 @@ pub struct TeamWithUser {
     pub score: u32,
     pub slug: String,
     pub prs: Option<String>,
-    pub users: Vec<User>
+    pub users: Vec<User>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -38,9 +38,9 @@ pub struct PR {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct User{
+pub struct User {
     pub name: String,
-    pub handle: String
+    pub handle: String,
 }
 
 pub async fn get_teams() -> Vec<Team> {

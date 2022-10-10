@@ -1,7 +1,5 @@
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
-use serenity::model::prelude::interaction::application_command::{
-    ApplicationCommandInteraction,
-};
+use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
 use serenity::model::prelude::interaction::message_component::MessageComponentInteraction;
 use serenity::model::prelude::interaction::Interaction;
 use serenity::prelude::Context;
@@ -12,37 +10,36 @@ use crate::pagination::Pagination;
 use crate::PAGINATION;
 
 pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
+    let teams = get_teams().await;
 
-        let teams = get_teams().await;
-
-        let mut pages = Vec::new();
-        for team_list in teams.chunks(8) {
-            let mut description = String::new();
-            for team in team_list {
-                description += &format!(
+    let mut pages = Vec::new();
+    for team_list in teams.chunks(8) {
+        let mut description = String::new();
+        for team in team_list {
+            description += &format!(
                 "**[{}](https://hacksquad.dev/team/{})**\n<:reply_multi:1029067132572549142>Rank: `{}`\n<:reply:1029065416905076808>Points: `{}`\n",
                 team.name.clone(),
                 team.slug,
                 teams.iter().position(|r| r.slug == team.slug).unwrap() + 1,
                 team.score
             )
-            }
-            let page = CreateEmbed::default()
+        }
+        let page = CreateEmbed::default()
             .title("HackSquad Leaderboard")
             .url("https://hacksquad.dev/leaderboard")
             .description(description)
             .color(Color::BLITZ_BLUE)
             .thumbnail("https://cdn.discordapp.com/emojis/1026095278941552690.webp?size=128&quality=lossless")
             .to_owned();
-            pages.push(page)
-        }
-
-        let mut pagination = Pagination::new(pages);
-        pagination.handle_message(ctx, command.clone()).await;
-
-        let mut paginations = PAGINATION.lock().await;
-        paginations.insert(command.user.id, pagination);
+        pages.push(page)
     }
+
+    let mut pagination = Pagination::new(pages);
+    pagination.handle_message(ctx, command.clone()).await;
+
+    let mut paginations = PAGINATION.lock().await;
+    paginations.insert(command.user.id, pagination);
+}
 
 pub async fn handle_interaction(
     ctx: Context,
@@ -96,7 +93,5 @@ pub async fn handle_interaction(
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
-    command
-        .name("teams")
-        .description("Leaderboard")
+    command.name("teams").description("Leaderboard")
 }

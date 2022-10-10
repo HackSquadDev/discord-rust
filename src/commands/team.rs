@@ -10,7 +10,7 @@ use serenity::model::prelude::ReactionType;
 use serenity::prelude::Context;
 use serenity::utils::Colour;
 
-use crate::api::{get_team, PR, get_teams};
+use crate::api::{get_team, get_teams, PR};
 use crate::fuzzy::search_teams;
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
@@ -39,14 +39,21 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         let mut pull_req = String::new();
         let mut user_list = String::new();
 
-        for user in team.users{
-            user_list += format!("<:reply_multi:1029067132572549142>[{}](https://github.com/{})\n", user.name, user.handle).as_ref();
+        for user in team.users {
+            user_list += format!(
+                "<:reply_multi:1029067132572549142>[{}](https://github.com/{})\n",
+                user.name, user.handle
+            )
+            .as_ref();
         }
 
         if let Some(prs) = team.prs {
             let all_prs: Vec<PR> = serde_json::from_str(&prs).unwrap();
             for pr in all_prs.iter().take(3) {
-                pull_req += &format!("<:reply_multi:1029067132572549142>[{}]({})\n", pr.title, pr.url);
+                pull_req += &format!(
+                    "<:reply_multi:1029067132572549142>[{}]({})\n",
+                    pr.title, pr.url
+                );
             }
             let mut deleted = 0;
             for pr in all_prs {

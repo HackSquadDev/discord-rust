@@ -177,22 +177,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "discord-test-bot"
-version = "0.1.0"
-dependencies = [
- "dotenvy",
- "envy",
- "lazy_static",
- "redis",
- "reqwest",
- "serde",
- "serde_json",
- "serenity",
- "simsearch",
- "tokio",
-]
-
-[[package]]
 name = "dotenvy"
 version = "0.15.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -371,6 +355,22 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
+]
+
+[[package]]
+name = "hacksquad-bot"
+version = "0.1.0"
+dependencies = [
+ "dotenvy",
+ "envy",
+ "lazy_static",
+ "redis",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serenity",
+ "simsearch",
+ "tokio",
 ]
 
 [[package]]

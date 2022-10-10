@@ -16,7 +16,7 @@ RUN case "$TARGETPLATFORM" in \
 RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
     dpkg --add-architecture arm64 \
     && apt update \
-    && apt install gcc-aarch64-linux-gnu libc6-dev-arm64-cross libssl-dev pkg-config -y; \
+    && apt install gcc-aarch64-linux-gnu libc6-dev-arm64-cross libssl-dev:arm64 pkg-config -y; \
     fi
 
 RUN rustup target add $(cat /target.txt)

@@ -1,30 +1,26 @@
-use std::{collections::HashMap, env};
+use std::{env};
 
 use serenity::{
     async_trait,
-    model::prelude::{interaction::Interaction, GuildId, Ready, UserId},
+    model::prelude::{interaction::Interaction, GuildId, Ready},
     prelude::{Context, EventHandler},
 };
 
-use crate::{commands, pagination::Pagination};
+use crate::commands;
 
 pub struct Handler;
 
 #[async_trait]
 impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
-        let mut paginations: HashMap<UserId, Pagination> = HashMap::new();
-
         match interaction {
             Interaction::ApplicationCommand(ref command) => match command.data.name.as_str() {
                 "team" => commands::team::run(command.clone(), ctx.clone()).await,
-                "teams" => {
-                    commands::teams::run(command.clone(), ctx.clone(), &mut paginations).await
-                }
+                "teams" => commands::teams::run(command.clone(), ctx.clone()).await,
                 _ => todo!(),
             },
             Interaction::MessageComponent(_) => {
-                commands::teams::handle_interaction(&ctx, interaction.clone(), &paginations).await
+                commands::teams::handle_interaction(&ctx, interaction.clone()).await
             }
             Interaction::Autocomplete(ref command) => match command.data.name.as_str() {
                 "team" => {

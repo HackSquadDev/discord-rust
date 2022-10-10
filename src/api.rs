@@ -52,7 +52,7 @@ pub async fn get_teams() -> Vec<Team> {
 pub async fn get_team(team_id: &String) -> Team {
     let db = DATABASE.lock().await;
 
-    let redis_team = db.get(&format!("team:{}", team_id).to_string());
+    let redis_team = db.get(&format!("team:{}", team_id));
 
     match redis_team {
         Ok(data) => serde_json::from_str(&data).unwrap(),
@@ -68,7 +68,7 @@ pub async fn get_team(team_id: &String) -> Team {
             .unwrap();
 
             db.save(
-                &format!("team:{}", team_id).to_string(),
+                &format!("team:{}", team_id),
                 &json!(api_response.team).to_string(),
             );
 

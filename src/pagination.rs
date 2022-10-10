@@ -79,6 +79,11 @@ impl Pagination {
                 self.index = 0;
             }
             "◀️" => {
+                // make it wrap around
+                if self.index == 0 {
+                    self.index = self.pages.len();
+                }
+
                 if self.index > 0 {
                     self.index -= 1;
                 }
@@ -135,7 +140,10 @@ impl Pagination {
                 return true;
             }
             "▶️" => {
-                if self.index < page_count - 1 {
+                // make it wrap around
+                if self.index == self.pages.len() - 1 {
+                    self.index = 0;
+                } else if self.index < page_count - 1 {
                     self.index += 1;
                 }
             }

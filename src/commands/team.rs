@@ -53,7 +53,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
             team.slug
         );
 
-            command
+            if let Err(err) = command
             .create_interaction_response(ctx.http, |response| {
                 response
                     .kind(InteractionResponseType::ChannelMessageWithSource)
@@ -68,20 +68,23 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
                         .thumbnail("https://cdn.discordapp.com/emojis/1026095278941552690.webp?size=128&quality=lossless"))
                     })
             })
-            .await
-            .unwrap();
+            .await {
+                println!("Error sending message: {:?}", err);
+
+
+            }
         }
-    } else {
-        command
-            .create_interaction_response(ctx.http, |response| {
-                response
-                    .kind(InteractionResponseType::ChannelMessageWithSource)
-                    .interaction_response_data(|message| {
-                        message.content("Please provide a valid teams")
-                    })
-            })
-            .await
-            .unwrap();
+    } else if let Err(err) = command
+        .create_interaction_response(ctx.http, |response| {
+            response
+                .kind(InteractionResponseType::ChannelMessageWithSource)
+                .interaction_response_data(|message| {
+                    message.content("Please provide a valid teams")
+                })
+        })
+        .await
+    {
+        println!("Error sending message: {:?}", err);
     }
 }
 

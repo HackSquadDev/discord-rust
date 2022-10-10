@@ -43,23 +43,41 @@ pub async fn handle_interaction(
 ) {
     let mut paginations = PAGINATION.lock().await;
 
+    let mut should_clear = false;
     // Ensures only the user who started the command can interact with the pagination
     let page = paginations
+        // safe unwrap
         .entry(interaction.clone().message_component().unwrap().user.id)
         .or_insert_with(|| Pagination::new(Vec::new()));
 
     match page.clone().author {
-        Some(_) => page.handle_interaction(ctx, component).await,
+        Some(_) => {
+            should_clear = page
+                .handle_interaction_and_delete_pagination(ctx, component)
+                .await
+        }
         None => {
-            component
+            if let Err(err) = component
                 .create_interaction_response(ctx.http, |response| {
                     response.interaction_response_data(|message| {
-                        message.content("This embed has expired or you don't have permission to interact with it.")
+                        message
+                            .content(
+                                "This embed has expired or ".to_owned()
+                                    + " you don't have permission to interact with it.",
+                            )
+                            .ephemeral(true)
                     })
                 })
                 .await
-                .unwrap();
+            {
+                println!("Error sending interaction response: {:?}", err);
+            }
         }
+    }
+
+    if should_clear {
+        // safe unwrap, never paniks
+        paginations.remove(&interaction.clone().message_component().unwrap().user.id);
     }
 }
 

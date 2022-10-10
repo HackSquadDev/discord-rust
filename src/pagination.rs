@@ -35,39 +35,45 @@ impl Pagination {
 
         self.author = Some(command.user.clone());
 
-        command
+        if let Err(err) = command
             .create_interaction_response(ctx.http, |response| {
                 response.interaction_response_data(|message| {
-                    message.components(|c| {
-                        c.create_action_row(|r| {
-                            r.add_button(button("First", ButtonStyle::Primary, "⏮️"));
-                            r.add_button(button("Prev", ButtonStyle::Primary, "◀️"));
-                            r.add_button(button("Stop", ButtonStyle::Danger, "⏹️"));
-                            r.add_button(button("Next", ButtonStyle::Primary, "▶️"));
-                            r.add_button(button("Last", ButtonStyle::Primary, "⏭️"))
-                        })
-                    });
-                    message.set_embed(
-                        self.pages[self.index]
-                            .clone()
-                            .footer(|footer| {
-                                footer.text(format!("Page {} of {}", self.index + 1, pages_count))
+                    message
+                        .components(|c| {
+                            c.create_action_row(|r| {
+                                r.add_button(button("First", ButtonStyle::Primary, "⏮️"));
+                                r.add_button(button("Prev", ButtonStyle::Primary, "◀️"));
+                                r.add_button(button("Stop", ButtonStyle::Danger, "⏹️"));
+                                r.add_button(button("Next", ButtonStyle::Primary, "▶️"));
+                                r.add_button(button("Last", ButtonStyle::Primary, "⏭️"))
                             })
-                            .clone(),
-                    )
+                        })
+                        .set_embed(
+                            self.pages[self.index]
+                                .clone()
+                                .footer(|footer| {
+                                    footer.text(format!(
+                                        "Page {} of {}",
+                                        self.index + 1,
+                                        pages_count
+                                    ))
+                                })
+                                .clone(),
+                        )
                 })
             })
             .await
-            .unwrap();
+        {
+            println!("Error sending message: {:?}", err);
+        }
     }
 
-    pub async fn handle_interaction(
+    pub async fn handle_interaction_and_delete_pagination(
         &mut self,
         ctx: Context,
         component: MessageComponentInteraction,
-    ) {
+    ) -> bool {
         let page_count = self.pages.len();
-        // println!("Component: {:#?}", component);
         match component.data.custom_id.as_str() {
             "⏮️" => {
                 self.index = 0;
@@ -95,7 +101,7 @@ impl Pagination {
                     .await
                     .expect("Failed to create deferred interaction response");
 
-                return;
+                return true;
             }
             "▶️" => {
                 if self.index < page_count - 1 {
@@ -135,6 +141,8 @@ impl Pagination {
             })
             .await
             .expect("Failed to create deferred update message");
+
+        false
     }
 }
 

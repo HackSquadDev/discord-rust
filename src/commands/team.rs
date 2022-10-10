@@ -43,7 +43,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
             let mut user_list_cloned = user_list.clone();
 
             if team.users.len() - 1 == index {
-                user_list_cloned += &format!(
+                user_list_cloned += format!(
                     "<:reply:1029065416905076808>[{}](https://github.com/{})\n",
                     user.name, user.handle
                 )

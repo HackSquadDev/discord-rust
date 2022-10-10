@@ -1,51 +1,29 @@
 use std::collections::HashMap;
 
-use serde::Deserialize;
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
 use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
 use serenity::model::prelude::interaction::Interaction;
 use serenity::model::prelude::UserId;
 use serenity::prelude::Context;
 
+use crate::api::get_teams;
 use crate::pagination::Pagination;
-
-#[derive(Deserialize, Debug)]
-struct Response {
-    teams: Vec<Team>,
-}
-
-#[derive(Deserialize, Debug)]
-struct Team {
-    name: String,
-    score: u32,
-    slug: String,
-}
 
 pub async fn run(
     command: ApplicationCommandInteraction,
     ctx: Context,
     paginations: &mut HashMap<UserId, Pagination>,
 ) {
-    let api_response: Response = reqwest::get("https://www.hacksquad.dev/api/leaderboard")
-        .await
-        .unwrap()
-        .json()
-        .await
-        .unwrap();
+    let teams = get_teams().await;
 
     let mut pages = Vec::new();
-    for team_list in api_response.teams.chunks(10) {
+    for team_list in teams.chunks(10) {
         let page = CreateEmbed::default()
             .fields(team_list.iter().map(|f| {
                 (
                     format!(
                         "#{} {}",
-                        api_response
-                            .teams
-                            .iter()
-                            .position(|r| r.slug == f.slug)
-                            .unwrap()
-                            + 1,
+                        teams.iter().position(|r| r.slug == f.slug).unwrap() + 1,
                         f.name.clone()
                     ),
                     format!("{} points", f.score),

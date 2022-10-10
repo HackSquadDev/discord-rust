@@ -1,3 +1,4 @@
+use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -26,9 +27,9 @@ pub struct PR {
     pub status: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Hero {
-    pub name: String,
+    pub name: Option<String>,
     pub avatar_url: String,
     pub bio: Option<String>,
     pub location: Option<String>,
@@ -37,8 +38,8 @@ pub struct Hero {
     pub linkedin: Option<String>,
     pub twitter: Option<String>,
     pub discord: Option<String>,
-    pub activities_count: u32,
-    pub activities_score: u32,
+    pub activities_count: Option<u32>,
+    pub activities_score: Option<u32>,
 }
 
 #[derive(Deserialize)]
@@ -46,12 +47,12 @@ pub struct HeroResponse {
     pub list: Vec<Hero>,
 }
 
-pub async fn get_heroes() -> Vec<Hero> {
+pub async fn get_random_hero() -> Hero {
     let db = DATABASE.lock().await;
 
     let redis_heroes = db.get("heroes");
 
-    match redis_heroes {
+    let hero_list = match redis_heroes {
         Ok(heroes) => {
             let heroes: Vec<Hero> = serde_json::from_str(&heroes).unwrap();
             heroes
@@ -68,7 +69,12 @@ pub async fn get_heroes() -> Vec<Hero> {
 
             heroes.list
         }
-    }
+    };
+
+    hero_list
+        .choose(&mut rand::thread_rng())
+        .expect("No heroes found")
+        .to_owned()
 }
 
 pub async fn get_hero(hero_github_id: &str) -> Hero {

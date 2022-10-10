@@ -1,17 +1,14 @@
-use serenity::builder::{CreateButton};
-
-
+use serenity::builder::CreateButton;
 use serenity::model::prelude::component::ButtonStyle;
 use serenity::model::prelude::interaction::application_command::{
     ApplicationCommandInteraction, CommandDataOptionValue,
 };
-use serenity::model::prelude::interaction::{InteractionResponseType};
+use serenity::model::prelude::interaction::InteractionResponseType;
 use serenity::model::prelude::ReactionType;
 use serenity::prelude::Context;
 use serenity::utils::Colour;
 
-use crate::api::{get_hero};
-
+use crate::api::get_hero;
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
     CreateButton::default()
@@ -35,7 +32,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
     if let CommandDataOptionValue::String(hero_github_id) = option {
         let hero = get_hero(hero_github_id).await;
 
-        let data = format!("**Name:** {}\n", hero.name);
+        let data = format!("**Name:** {:?}\n", hero.name);
 
         if let Err(err) = command
             .create_interaction_response(&ctx.http, |response| {

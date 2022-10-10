@@ -183,6 +183,7 @@ dependencies = [
  "dotenvy",
  "envy",
  "lazy_static",
+ "rand",
  "redis",
  "reqwest",
  "serde",

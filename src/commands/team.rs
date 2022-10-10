@@ -39,24 +39,32 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         let mut pull_req = String::new();
         let mut user_list = String::new();
 
-        for (index, user) in team.users.iter().enumerate() {
-            let mut user_list_cloned = user_list.clone();
+        match team.users {
+            Some(users) => {
+                for (index, user) in users.iter().enumerate() {
+                    let mut user_list_cloned = user_list.clone();
 
-            if team.users.len() - 1 == index {
-                user_list_cloned += format!(
-                    "<:reply:1029065416905076808>[{}](https://github.com/{})\n",
-                    user.name, user.handle
-                )
-                .as_ref();
-            } else {
-                user_list_cloned += format!(
-                    "<:reply_multi:1029067132572549142>[{}](https://github.com/{})\n",
-                    user.name, user.handle
-                )
-                .as_ref();
+                    if users.len() - 1 == index {
+                        user_list_cloned += format!(
+                            "<:reply:1029065416905076808>[{}](https://github.com/{})\n",
+                            user.name, user.handle
+                        )
+                        .as_ref();
+                    } else {
+                        user_list_cloned += format!(
+                            "<:reply_multi:1029067132572549142>[{}](https://github.com/{})\n",
+                            user.name, user.handle
+                        )
+                        .as_ref();
+                    }
+
+                    user_list = user_list_cloned
+                }
             }
-
-            user_list = user_list_cloned
+            None => {
+                user_list += format!("Could not get team members").as_ref();
+                todo!("API Returned invalid response")
+            }
         }
 
         if let Some(prs) = team.prs {

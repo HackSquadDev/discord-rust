@@ -18,5 +18,6 @@ pkgs.mkShell {
     pkgs.pkg-config
     pkgs.rust-analyzer
     pkgs.cargo-deny
+    pkgs.cargo-watch
   ];
 }

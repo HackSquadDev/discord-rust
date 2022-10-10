@@ -1,7 +1,6 @@
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
 use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
 use serenity::model::prelude::interaction::Interaction;
-
 use serenity::prelude::Context;
 
 use crate::api::get_teams;
@@ -30,7 +29,7 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
     }
 
     let mut pagination = Pagination::new(pages);
-    println!("Pagination in initial request {:#?}", pagination);
+    // println!("Pagination in initial request {:#?}", pagination);
     pagination.handle_message(ctx, command.clone()).await;
 
     let mut paginations = PAGINATION.lock().await;
@@ -48,7 +47,7 @@ pub async fn handle_interaction(ctx: &Context, interaction: Interaction) {
     //     "Interaction cloned user id in message component{:?}",
     //     &interaction.clone().message_component().unwrap().user.id
     // );
-    println!("Pagination in handle interaction {:?}", pagination);
+    // println!("Pagination in handle interaction {:?}", pagination);
 
     match pagination {
         Some(page) => page.handle_interaction(ctx, interaction),

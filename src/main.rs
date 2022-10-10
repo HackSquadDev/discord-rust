@@ -1,8 +1,10 @@
 #[macro_use]
 extern crate lazy_static;
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
+use serenity::model::id::UserId;
 use serenity::prelude::*;
 
 mod api;
@@ -15,9 +17,14 @@ mod pagination;
 
 use crate::database::Database as DB;
 use crate::events::Handler;
+use crate::pagination::Pagination;
 
 lazy_static! {
     static ref DATABASE: Arc<Mutex<DB>> = Arc::new(Mutex::new(DB::default()));
+}
+lazy_static! {
+    static ref PAGINATION: Arc<Mutex<HashMap<UserId, Pagination>>> =
+        Arc::new(Mutex::new(HashMap::new()));
 }
 
 #[tokio::main]

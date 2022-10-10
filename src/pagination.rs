@@ -69,7 +69,6 @@ impl Pagination {
     }
 }
 
-#[allow(clippy::clone_double_ref)]
 fn button(name: &str, style: ButtonStyle, emoji: &str) -> CreateButton {
     CreateButton::default()
         .emoji(ReactionType::Unicode(emoji.to_string()))

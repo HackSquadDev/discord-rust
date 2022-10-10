@@ -39,21 +39,42 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         let mut pull_req = String::new();
         let mut user_list = String::new();
 
-        for user in team.users {
-            user_list += format!(
-                "<:reply_multi:1029067132572549142>[{}](https://github.com/{})\n",
-                user.name, user.handle
-            )
-            .as_ref();
+        for (index, user) in team.users.iter().enumerate() {
+            let mut user_list_cloned = user_list.clone();
+
+            if team.users.len() - 1 == index {
+                user_list_cloned += &format!(
+                    "<:reply:1029065416905076808>[{}](https://github.com/{})\n",
+                    user.name, user.handle
+                )
+                .as_ref();
+            } else {
+                user_list_cloned += format!(
+                    "<:reply_multi:1029067132572549142>[{}](https://github.com/{})\n",
+                    user.name, user.handle
+                )
+                .as_ref();
+            }
+
+            user_list = user_list_cloned
         }
 
         if let Some(prs) = team.prs {
             let all_prs: Vec<PR> = serde_json::from_str(&prs).unwrap();
-            for pr in all_prs.iter().take(3) {
-                pull_req += &format!(
-                    "<:reply_multi:1029067132572549142>[{}]({})\n",
-                    pr.title, pr.url
-                );
+            for (index, pr) in all_prs.iter().take(3).enumerate() {
+                let mut pull_req_cloned = pull_req.clone();
+
+                if all_prs[0..2].len() == index {
+                    pull_req_cloned +=
+                        &format!("<:reply:1029065416905076808>[{}]({})\n", pr.title, pr.url);
+                } else {
+                    pull_req_cloned += &format!(
+                        "<:reply_multi:1029067132572549142>[{}]({})\n",
+                        pr.title, pr.url
+                    );
+                }
+
+                pull_req = pull_req_cloned
             }
             let mut deleted = 0;
             for pr in all_prs {

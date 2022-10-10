@@ -41,9 +41,11 @@ impl Pagination {
                     message
                         .components(|c| {
                             c.create_action_row(|r| {
+                                r.add_button(button("", ButtonStyle::Primary, "⏪"));
                                 r.add_button(button("", ButtonStyle::Primary, "◀️"));
                                 r.add_button(button("", ButtonStyle::Danger, "🗑️"));
-                                r.add_button(button("", ButtonStyle::Primary, "▶️"))
+                                r.add_button(button("", ButtonStyle::Primary, "▶️"));
+                                r.add_button(button("", ButtonStyle::Primary, "⏩"))
                             })
                         })
                         .set_embed(
@@ -73,7 +75,7 @@ impl Pagination {
     ) -> bool {
         let page_count = self.pages.len();
         match component.data.custom_id.as_str() {
-            "⏮️" => {
+            "⏪" => {
                 self.index = 0;
             }
             "◀️" => {
@@ -93,6 +95,11 @@ impl Pagination {
                         message.components(|c| {
                             c.create_action_row(|r| {
                                 r.add_button(
+                                    button("", ButtonStyle::Primary, "⏪")
+                                        .disabled(true)
+                                        .to_owned(),
+                                );
+                                r.add_button(
                                     button("", ButtonStyle::Primary, "◀️")
                                         .disabled(true)
                                         .to_owned(),
@@ -104,6 +111,11 @@ impl Pagination {
                                 );
                                 r.add_button(
                                     button("", ButtonStyle::Primary, "▶️")
+                                        .disabled(true)
+                                        .to_owned(),
+                                );
+                                r.add_button(
+                                    button("", ButtonStyle::Primary, "⏩")
                                         .disabled(true)
                                         .to_owned(),
                                 )
@@ -127,7 +139,7 @@ impl Pagination {
                     self.index += 1;
                 }
             }
-            "⏭️" => {
+            "⏩" => {
                 self.index = self.pages.len() - 1;
             }
             _ => {

@@ -10,7 +10,7 @@ pub struct TeamsResponse {
 
 #[derive(Deserialize, Debug)]
 pub struct TeamResponse {
-    pub team: Team,
+    pub team: TeamWithUser,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -22,8 +22,25 @@ pub struct Team {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TeamWithUser {
+    pub name: String,
+    pub score: u32,
+    pub slug: String,
+    pub prs: Option<String>,
+    pub users: Vec<User>
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PR {
     pub status: Option<String>,
+    pub title: String,
+    pub url: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct User{
+    pub name: String,
+    pub handle: String
 }
 
 pub async fn get_teams() -> Vec<Team> {
@@ -49,7 +66,7 @@ pub async fn get_teams() -> Vec<Team> {
     }
 }
 
-pub async fn get_team(team_id: &String) -> Team {
+pub async fn get_team(team_id: &String) -> TeamWithUser {
     let db = DATABASE.lock().await;
 
     let redis_team = db.get(&format!("team:{}", team_id));

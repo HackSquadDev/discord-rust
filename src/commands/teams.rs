@@ -1,7 +1,6 @@
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
-use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::interaction::application_command::{
-    ApplicationCommandInteraction, CommandDataOptionValue,
+    ApplicationCommandInteraction,
 };
 use serenity::model::prelude::interaction::message_component::MessageComponentInteraction;
 use serenity::model::prelude::interaction::Interaction;
@@ -13,24 +12,15 @@ use crate::pagination::Pagination;
 use crate::PAGINATION;
 
 pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
-    let option = command
-        .data
-        .options
-        .get(0)
-        .expect("Expected integer option")
-        .resolved
-        .as_ref()
-        .expect("Expected integer object");
 
-    if let CommandDataOptionValue::Integer(per_page) = option {
         let teams = get_teams().await;
 
         let mut pages = Vec::new();
-        for team_list in teams.chunks(per_page.to_owned() as usize) {
+        for team_list in teams.chunks(8) {
             let mut description = String::new();
             for team in team_list {
                 description += &format!(
-                "[{}](https://hacksquad.dev/team/{})\n<:reply_multi:1029067132572549142>Rank: `{}`\n<:reply:1029065416905076808>Points: `{}`\n",
+                "**[{}](https://hacksquad.dev/team/{})**\n<:reply_multi:1029067132572549142>Rank: `{}`\n<:reply:1029065416905076808>Points: `{}`\n",
                 team.name.clone(),
                 team.slug,
                 teams.iter().position(|r| r.slug == team.slug).unwrap() + 1,
@@ -53,7 +43,6 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         let mut paginations = PAGINATION.lock().await;
         paginations.insert(command.user.id, pagination);
     }
-}
 
 pub async fn handle_interaction(
     ctx: Context,
@@ -110,13 +99,4 @@ pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicatio
     command
         .name("teams")
         .description("Leaderboard")
-        .create_option(|option| {
-            option
-                .name("per_page")
-                .description("Number of teams per page(between 5 and 10)")
-                .kind(CommandOptionType::Integer)
-                .max_int_value(10)
-                .min_int_value(5)
-                .required(true)
-        })
 }

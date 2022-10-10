@@ -98,8 +98,6 @@ impl Pagination {
                 return;
             }
             "▶️" => {
-                println!("Clicked next");
-                println!("Index: {}", self.index);
                 if self.index < page_count - 1 {
                     self.index += 1;
                 }

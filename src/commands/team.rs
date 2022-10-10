@@ -22,7 +22,7 @@ fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
         .to_owned()
 }
 
-pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
+pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
     let option = command
         .data
         .options
@@ -54,7 +54,7 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
         );
 
             command
-            .create_interaction_response(&ctx.http, |response| {
+            .create_interaction_response(ctx.http, |response| {
                 response
                     .kind(InteractionResponseType::ChannelMessageWithSource)
                     .interaction_response_data(|message| {
@@ -73,7 +73,7 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
         }
     } else {
         command
-            .create_interaction_response(&ctx.http, |response| {
+            .create_interaction_response(ctx.http, |response| {
                 response
                     .kind(InteractionResponseType::ChannelMessageWithSource)
                     .interaction_response_data(|message| {
@@ -86,14 +86,14 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
 }
 
 pub async fn handle_autocomplete(
-    ctx: &Context,
+    ctx: Context,
     command: &AutocompleteInteraction,
     _interaction: Interaction,
 ) {
     let search = search_teams(command.data.options[0].value.clone()).await;
 
     command
-        .create_autocomplete_response(&ctx.http, |response| response.set_choices(search))
+        .create_autocomplete_response(ctx.http, |response| response.set_choices(search))
         .await
         .unwrap();
 }

@@ -1,5 +1,6 @@
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
 use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
+use serenity::model::prelude::interaction::message_component::MessageComponentInteraction;
 use serenity::model::prelude::interaction::Interaction;
 use serenity::prelude::Context;
 
@@ -7,7 +8,7 @@ use crate::api::get_teams;
 use crate::pagination::Pagination;
 use crate::PAGINATION;
 
-pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
+pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
     let teams = get_teams().await;
 
     let mut pages = Vec::new();
@@ -29,29 +30,36 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
     }
 
     let mut pagination = Pagination::new(pages);
-    // println!("Pagination in initial request {:#?}", pagination);
     pagination.handle_message(ctx, command.clone()).await;
 
     let mut paginations = PAGINATION.lock().await;
     paginations.insert(command.user.id, pagination);
-    // println!("Paginations in initial request {:#?}", paginations);
 }
 
-pub async fn handle_interaction(ctx: &Context, interaction: Interaction) {
-    let paginations = PAGINATION.lock().await;
+pub async fn handle_interaction(
+    ctx: Context,
+    component: MessageComponentInteraction,
+    interaction: Interaction,
+) {
+    let mut paginations = PAGINATION.lock().await;
 
-    let pagination = paginations.get(&interaction.clone().message_component().unwrap().user.id);
+    // Ensures only the user who started the command can interact with the pagination
+    let page = paginations
+        .entry(interaction.clone().message_component().unwrap().user.id)
+        .or_insert_with(|| Pagination::new(Vec::new()));
 
-    // println!("Paginations {:?}", paginations);
-    // println!(
-    //     "Interaction cloned user id in message component{:?}",
-    //     &interaction.clone().message_component().unwrap().user.id
-    // );
-    // println!("Pagination in handle interaction {:?}", pagination);
-
-    match pagination {
-        Some(page) => page.handle_interaction(ctx, interaction),
-        None => println!("No pagination found"),
+    match page.clone().author {
+        Some(_) => page.handle_interaction(ctx, component).await,
+        None => {
+            component
+                .create_interaction_response(ctx.http, |response| {
+                    response.interaction_response_data(|message| {
+                        message.content("This embed has expired or you don't have permission to interact with it.")
+                    })
+                })
+                .await
+                .unwrap();
+        }
     }
 }
 

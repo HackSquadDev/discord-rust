@@ -15,20 +15,31 @@ impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         match interaction {
             Interaction::ApplicationCommand(ref command) => match command.data.name.as_str() {
-                "team" => commands::team::run(command.clone(), ctx.clone()).await,
-                "teams" => commands::teams::run(command.clone(), ctx.clone()).await,
-                _ => todo!(),
+                "team" => commands::team::run(ctx, command.to_owned()).await,
+                "teams" => commands::teams::run(ctx, command.to_owned()).await,
+                other_commands => println!("Unknown command {}", other_commands),
             },
-            Interaction::MessageComponent(_) => {
-                commands::teams::handle_interaction(&ctx, interaction.clone()).await
-            }
+            Interaction::MessageComponent(ref component) => match component.message.interaction {
+                Some(ref message_interaction) => match message_interaction.name.as_str() {
+                    "teams" => {
+                        commands::teams::handle_interaction(
+                            ctx,
+                            component.to_owned(),
+                            interaction.to_owned(),
+                        )
+                        .await
+                    }
+                    _ => println!("We only handle component interaction in teams command"),
+                },
+                None => println!("No interaction"),
+            },
             Interaction::Autocomplete(ref command) => match command.data.name.as_str() {
                 "team" => {
-                    commands::team::handle_autocomplete(&ctx, command, interaction.clone()).await
+                    commands::team::handle_autocomplete(ctx, command, interaction.to_owned()).await
                 }
-                a => todo!("{}", a),
+                other_commands => println!("No autocompletions for {}", other_commands),
             },
-            _ => {}
+            other_interactions => println!("Unhandled interaction {:?}", other_interactions),
         }
     }
 

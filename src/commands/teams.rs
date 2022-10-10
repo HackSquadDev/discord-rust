@@ -3,6 +3,7 @@ use serenity::model::prelude::interaction::application_command::ApplicationComma
 use serenity::model::prelude::interaction::message_component::MessageComponentInteraction;
 use serenity::model::prelude::interaction::Interaction;
 use serenity::prelude::Context;
+use serenity::utils::Color;
 
 use crate::api::get_teams;
 use crate::pagination::Pagination;
@@ -12,20 +13,24 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
     let teams = get_teams().await;
 
     let mut pages = Vec::new();
-    for team_list in teams.chunks(10) {
+    for team_list in teams.chunks(8) {
+        let mut description = String::new();
+        for team in team_list {
+            description += &format!(
+                "**[{}](https://hacksquad.dev/team/{})**\n<:reply_multi:1029067132572549142>Rank: `{}`\n<:reply:1029065416905076808>Points: `{}`\n",
+                team.name.clone(),
+                team.slug,
+                teams.iter().position(|r| r.slug == team.slug).unwrap() + 1,
+                team.score
+            )
+        }
         let page = CreateEmbed::default()
-            .fields(team_list.iter().map(|f| {
-                (
-                    format!(
-                        "#{} {}",
-                        teams.iter().position(|r| r.slug == f.slug).unwrap() + 1,
-                        f.name.clone()
-                    ),
-                    format!("{} points", f.score),
-                    false,
-                )
-            }))
-            .clone();
+            .title("HackSquad Leaderboard")
+            .url("https://hacksquad.dev/leaderboard")
+            .description(description)
+            .color(Color::BLITZ_BLUE)
+            .thumbnail("https://cdn.discordapp.com/emojis/1026095278941552690.webp?size=128&quality=lossless")
+            .to_owned();
         pages.push(page)
     }
 
@@ -44,6 +49,7 @@ pub async fn handle_interaction(
     let mut paginations = PAGINATION.lock().await;
 
     let mut should_clear = false;
+    // println!("1 {:#?}", component);
     // Ensures only the user who started the command can interact with the pagination
     let page = paginations
         // safe unwrap
@@ -61,9 +67,14 @@ pub async fn handle_interaction(
                 .create_interaction_response(ctx.http, |response| {
                     response.interaction_response_data(|message| {
                         message
-                            .content(
-                                "This embed has expired or ".to_owned()
-                                    + " you don't have permission to interact with it.",
+                            .add_embed(
+                                CreateEmbed::default()
+                                    .description(format!(
+                                        "This belongs to <@{}>",
+                                        component.clone().message.interaction.unwrap().user.id
+                                    ))
+                                    .color(Color::RED)
+                                    .to_owned(),
                             )
                             .ephemeral(true)
                     })

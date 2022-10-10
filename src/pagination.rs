@@ -41,11 +41,11 @@ impl Pagination {
                     message
                         .components(|c| {
                             c.create_action_row(|r| {
-                                r.add_button(button("First", ButtonStyle::Primary, "⏮️"));
-                                r.add_button(button("Prev", ButtonStyle::Primary, "◀️"));
-                                r.add_button(button("Stop", ButtonStyle::Danger, "⏹️"));
-                                r.add_button(button("Next", ButtonStyle::Primary, "▶️"));
-                                r.add_button(button("Last", ButtonStyle::Primary, "⏭️"))
+                                r.add_button(button("", ButtonStyle::Primary, "⏪"));
+                                r.add_button(button("", ButtonStyle::Primary, "◀️"));
+                                r.add_button(button("", ButtonStyle::Danger, "🗑️"));
+                                r.add_button(button("", ButtonStyle::Primary, "▶️"));
+                                r.add_button(button("", ButtonStyle::Primary, "⏩"))
                             })
                         })
                         .set_embed(
@@ -75,7 +75,7 @@ impl Pagination {
     ) -> bool {
         let page_count = self.pages.len();
         match component.data.custom_id.as_str() {
-            "⏮️" => {
+            "⏪" => {
                 self.index = 0;
             }
             "◀️" => {
@@ -83,16 +83,47 @@ impl Pagination {
                     self.index -= 1;
                 }
             }
-            "⏹️" => {
+            "🗑️" => {
                 self.pages.clear();
                 self.author = None;
                 self.index = 0;
 
                 component
+                    .clone()
                     .message
-                    .delete(&ctx.http)
+                    .edit(&ctx.http, |message| {
+                        message.components(|c| {
+                            c.create_action_row(|r| {
+                                r.add_button(
+                                    button("", ButtonStyle::Primary, "⏪")
+                                        .disabled(true)
+                                        .to_owned(),
+                                );
+                                r.add_button(
+                                    button("", ButtonStyle::Primary, "◀️")
+                                        .disabled(true)
+                                        .to_owned(),
+                                );
+                                r.add_button(
+                                    button("", ButtonStyle::Danger, "🗑️")
+                                        .disabled(true)
+                                        .to_owned(),
+                                );
+                                r.add_button(
+                                    button("", ButtonStyle::Primary, "▶️")
+                                        .disabled(true)
+                                        .to_owned(),
+                                );
+                                r.add_button(
+                                    button("", ButtonStyle::Primary, "⏩")
+                                        .disabled(true)
+                                        .to_owned(),
+                                )
+                            })
+                        })
+                    })
                     .await
-                    .expect("Failed to delete Message");
+                    .unwrap();
 
                 component
                     .create_interaction_response(&ctx.http, |r| {
@@ -108,7 +139,7 @@ impl Pagination {
                     self.index += 1;
                 }
             }
-            "⏭️" => {
+            "⏩" => {
                 self.index = self.pages.len() - 1;
             }
             _ => {

@@ -45,12 +45,11 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
             }
 
             let data = format!(
-            "**Name:** {}\n**Score:** {}\n**Total PRs:** {}\n**Total PRs Deleted:** {}\n**Slug:** {}",
+            "**Name:** {}\n<:reply_multi:1029067132572549142>**Score:** `{}`\n<:reply_multi:1029067132572549142>**Total PRs:** `{}`\n<:reply:1029065416905076808>**Total PRs Deleted:** `{}`",
             team.name,
             team.score,
             team.score + deleted,
             deleted,
-            team.slug
         );
 
             if let Err(err) = command

@@ -17,23 +17,29 @@ impl EventHandler for Handler {
             Interaction::ApplicationCommand(ref command) => match command.data.name.as_str() {
                 "team" => commands::team::run(ctx, command.to_owned()).await,
                 "teams" => commands::teams::run(ctx, command.to_owned()).await,
-                _ => todo!(),
+                other_commands => println!("Unknown command {}", other_commands),
             },
-            Interaction::MessageComponent(ref component) => {
-                commands::teams::handle_interaction(
-                    ctx,
-                    component.to_owned(),
-                    interaction.to_owned(),
-                )
-                .await
-            }
+            Interaction::MessageComponent(ref component) => match component.message.interaction {
+                Some(ref message_interaction) => match message_interaction.name.as_str() {
+                    "teams" => {
+                        commands::teams::handle_interaction(
+                            ctx,
+                            component.to_owned(),
+                            interaction.to_owned(),
+                        )
+                        .await
+                    }
+                    _ => println!("We only handle component interaction in teams command"),
+                },
+                None => println!("No interaction"),
+            },
             Interaction::Autocomplete(ref command) => match command.data.name.as_str() {
                 "team" => {
                     commands::team::handle_autocomplete(ctx, command, interaction.to_owned()).await
                 }
-                a => todo!("{}", a),
+                other_commands => println!("No autocompletions for {}", other_commands),
             },
-            _ => {}
+            other_interactions => println!("Unhandled interaction {:?}", other_interactions),
         }
     }
 

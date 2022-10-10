@@ -1,9 +1,12 @@
 use serenity::{
     builder::{CreateButton, CreateEmbed},
-    model::application::interaction::application_command::ApplicationCommandInteraction,
     model::{
+        application::interaction::application_command::ApplicationCommandInteraction,
         prelude::{
-            component::ButtonStyle, interaction::message_component::MessageComponentInteraction,
+            component::ButtonStyle,
+            interaction::{
+                message_component::MessageComponentInteraction, InteractionResponseType,
+            },
             ReactionType,
         },
         user::User,
@@ -59,11 +62,12 @@ impl Pagination {
     }
 
     pub async fn handle_interaction(
-        mut self,
+        &mut self,
         ctx: Context,
         component: MessageComponentInteraction,
     ) {
         let page_count = self.pages.len();
+        // println!("Component: {:#?}", component);
         match component.data.custom_id.as_str() {
             "⏮️" => {
                 self.index = 0;
@@ -74,9 +78,28 @@ impl Pagination {
                 }
             }
             "⏹️" => {
+                self.pages.clear();
                 self.author = None;
+                self.index = 0;
+
+                component
+                    .message
+                    .delete(&ctx.http)
+                    .await
+                    .expect("Failed to delete Message");
+
+                component
+                    .create_interaction_response(&ctx.http, |r| {
+                        r.kind(InteractionResponseType::DeferredUpdateMessage)
+                    })
+                    .await
+                    .expect("Failed to create deferred interaction response");
+
+                return;
             }
             "▶️" => {
+                println!("Clicked next");
+                println!("Index: {}", self.index);
                 if self.index < page_count - 1 {
                     self.index += 1;
                 }
@@ -92,9 +115,10 @@ impl Pagination {
             }
         }
 
-        let mut message = component.message;
-        message
-            .edit(ctx.http, |message| {
+        component
+            .clone()
+            .message
+            .edit(&ctx.http, |message| {
                 message.set_embed(
                     self.pages[self.index]
                         .clone()
@@ -105,7 +129,14 @@ impl Pagination {
                 )
             })
             .await
-            .unwrap();
+            .expect("Failed to edit message");
+
+        component
+            .create_interaction_response(ctx.http, |r| {
+                r.kind(InteractionResponseType::DeferredUpdateMessage)
+            })
+            .await
+            .expect("Failed to create deferred update message");
     }
 }
 

@@ -1,4 +1,4 @@
-use std::{env};
+use std::env;
 
 use serenity::{
     async_trait,

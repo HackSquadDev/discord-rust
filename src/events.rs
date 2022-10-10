@@ -61,12 +61,12 @@ impl EventHandler for Handler {
             commands.create_application_command(|command| {
                 command
                     .name("randomhero")
-                    .description("Get a random contributor to nevo repository")
+                    .description("Get a random contributor to novu's repository")
             });
             commands.create_application_command(|command| {
                 command
                     .name("hero")
-                    .description("Get a nevo contrbutor's information")
+                    .description("Get info on a novu community hero")
                     .create_option(|option| {
                         option
                             .name("github_username")

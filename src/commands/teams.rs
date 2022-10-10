@@ -1,5 +1,6 @@
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
 use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
+use serenity::model::prelude::interaction::message_component::MessageComponentInteraction;
 use serenity::model::prelude::interaction::Interaction;
 use serenity::prelude::Context;
 
@@ -7,7 +8,7 @@ use crate::api::get_teams;
 use crate::pagination::Pagination;
 use crate::PAGINATION;
 
-pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
+pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
     let teams = get_teams().await;
 
     let mut pages = Vec::new();
@@ -29,29 +30,35 @@ pub async fn run(command: ApplicationCommandInteraction, ctx: Context) {
     }
 
     let mut pagination = Pagination::new(pages);
-    // println!("Pagination in initial request {:#?}", pagination);
     pagination.handle_message(ctx, command.clone()).await;
 
     let mut paginations = PAGINATION.lock().await;
     paginations.insert(command.user.id, pagination);
-    // println!("Paginations in initial request {:#?}", paginations);
 }
 
-pub async fn handle_interaction(ctx: &Context, interaction: Interaction) {
+pub async fn handle_interaction(
+    ctx: Context,
+    component: MessageComponentInteraction,
+    interaction: Interaction,
+) {
     let paginations = PAGINATION.lock().await;
 
+    // Ensures only the user who started the command can interact with the pagination
     let pagination = paginations.get(&interaction.clone().message_component().unwrap().user.id);
 
-    // println!("Paginations {:?}", paginations);
-    // println!(
-    //     "Interaction cloned user id in message component{:?}",
-    //     &interaction.clone().message_component().unwrap().user.id
-    // );
-    // println!("Pagination in handle interaction {:?}", pagination);
-
     match pagination {
-        Some(page) => page.clone().handle_interaction(ctx, interaction).await,
-        None => println!("No pagination found"),
+        Some(page) => page.clone().handle_interaction(ctx, component).await,
+        None => {
+            interaction
+                .message_component()
+                .unwrap()
+                .user
+                .direct_message(ctx.http, |m| {
+                    m.content("You can't interact with other's pagination")
+                })
+                .await
+                .unwrap();
+        }
     }
 }
 

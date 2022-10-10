@@ -2,7 +2,10 @@ use serenity::{
     builder::{CreateButton, CreateEmbed},
     model::application::interaction::application_command::ApplicationCommandInteraction,
     model::{
-        prelude::{component::ButtonStyle, interaction::Interaction, ReactionType},
+        prelude::{
+            component::ButtonStyle, interaction::message_component::MessageComponentInteraction,
+            ReactionType,
+        },
         user::User,
     },
     prelude::Context,
@@ -30,7 +33,7 @@ impl Pagination {
         self.author = Some(command.user.clone());
 
         command
-            .create_interaction_response(&ctx.http, |response| {
+            .create_interaction_response(ctx.http, |response| {
                 response.interaction_response_data(|message| {
                     message.components(|c| {
                         c.create_action_row(|r| {
@@ -55,48 +58,54 @@ impl Pagination {
             .unwrap();
     }
 
-    pub async fn handle_interaction(&mut self, ctx: &Context, interaction: Interaction) {
-        if let Interaction::MessageComponent(component) = interaction.clone() {
-            match component.data.custom_id.as_str() {
-                "⏮️" => {
-                    self.index = 0;
-                }
-                "◀️" => {
-                    self.index = self.index.saturating_sub(1);
-                }
-                "⏹️" => {
-                    self.author = None;
-                }
-                "▶️" => {
-                    self.index = self.index.saturating_add(1);
-                }
-                "⏭️" => {
-                    self.index = self.pages.len() - 1;
-                }
-                _ => {
-                    println!("Unknown interaction: {}", component.data.custom_id);
+    pub async fn handle_interaction(
+        mut self,
+        ctx: Context,
+        component: MessageComponentInteraction,
+    ) {
+        let page_count = self.pages.len();
+        match component.data.custom_id.as_str() {
+            "⏮️" => {
+                self.index = 0;
+            }
+            "◀️" => {
+                if self.index > 0 {
+                    self.index -= 1;
                 }
             }
-
-            let mut message = component.message;
-            message
-                .edit(ctx.clone().http, |message| {
-                    message.set_embed(
-                        self.pages[self.index]
-                            .clone()
-                            .footer(|footer| {
-                                footer.text(format!(
-                                    "Page {} of {}",
-                                    self.index + 1,
-                                    self.pages.len()
-                                ))
-                            })
-                            .clone(),
-                    )
-                })
-                .await
-                .unwrap();
+            "⏹️" => {
+                self.author = None;
+            }
+            "▶️" => {
+                if self.index < page_count - 1 {
+                    self.index += 1;
+                }
+            }
+            "⏭️" => {
+                self.index = self.pages.len() - 1;
+            }
+            _ => {
+                println!(
+                    "Unknown component interaction: {}. Somone probably spammed from some API's",
+                    component.data.custom_id
+                );
+            }
         }
+
+        let mut message = component.message;
+        message
+            .edit(ctx.http, |message| {
+                message.set_embed(
+                    self.pages[self.index]
+                        .clone()
+                        .footer(|footer| {
+                            footer.text(format!("Page {} of {}", self.index + 1, page_count))
+                        })
+                        .clone(),
+                )
+            })
+            .await
+            .unwrap();
     }
 }
 

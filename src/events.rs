@@ -15,16 +15,21 @@ impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         match interaction {
             Interaction::ApplicationCommand(ref command) => match command.data.name.as_str() {
-                "team" => commands::team::run(command.clone(), ctx.clone()).await,
-                "teams" => commands::teams::run(command.clone(), ctx.clone()).await,
+                "team" => commands::team::run(ctx, command.to_owned()).await,
+                "teams" => commands::teams::run(ctx, command.to_owned()).await,
                 _ => todo!(),
             },
-            Interaction::MessageComponent(_) => {
-                commands::teams::handle_interaction(&ctx, interaction.clone()).await
+            Interaction::MessageComponent(ref component) => {
+                commands::teams::handle_interaction(
+                    ctx,
+                    component.to_owned(),
+                    interaction.to_owned(),
+                )
+                .await
             }
             Interaction::Autocomplete(ref command) => match command.data.name.as_str() {
                 "team" => {
-                    commands::team::handle_autocomplete(&ctx, command, interaction.clone()).await
+                    commands::team::handle_autocomplete(ctx, command, interaction.to_owned()).await
                 }
                 a => todo!("{}", a),
             },

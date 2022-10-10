@@ -8,7 +8,7 @@ use serenity::{
     prelude::Context,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Pagination {
     pages: Vec<CreateEmbed>,
     index: usize,
@@ -55,16 +55,47 @@ impl Pagination {
             .unwrap();
     }
 
-    pub fn handle_interaction(&self, _ctx: &Context, interaction: Interaction) {
-        if let Interaction::MessageComponent(component) = interaction {
+    pub async fn handle_interaction(&mut self, ctx: &Context, interaction: Interaction) {
+        if let Interaction::MessageComponent(component) = interaction.clone() {
             match component.data.custom_id.as_str() {
                 "⏮️" => {
-                    println!("FIRST")
+                    self.index = 0;
+                }
+                "◀️" => {
+                    self.index = self.index.saturating_sub(1);
+                }
+                "⏹️" => {
+                    self.author = None;
+                }
+                "▶️" => {
+                    self.index = self.index.saturating_add(1);
+                }
+                "⏭️" => {
+                    self.index = self.pages.len() - 1;
                 }
                 _ => {
                     println!("Unknown interaction: {}", component.data.custom_id);
                 }
             }
+
+            let mut message = component.message;
+            message
+                .edit(ctx.clone().http, |message| {
+                    message.set_embed(
+                        self.pages[self.index]
+                            .clone()
+                            .footer(|footer| {
+                                footer.text(format!(
+                                    "Page {} of {}",
+                                    self.index + 1,
+                                    self.pages.len()
+                                ))
+                            })
+                            .clone(),
+                    )
+                })
+                .await
+                .unwrap();
         }
     }
 }

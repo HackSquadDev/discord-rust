@@ -50,7 +50,7 @@ pub async fn handle_interaction(ctx: &Context, interaction: Interaction) {
     // println!("Pagination in handle interaction {:?}", pagination);
 
     match pagination {
-        Some(page) => page.handle_interaction(ctx, interaction),
+        Some(page) => page.clone().handle_interaction(ctx, interaction).await,
         None => println!("No pagination found"),
     }
 }

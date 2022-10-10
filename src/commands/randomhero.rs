@@ -3,4 +3,4 @@ use serenity::{
     model::prelude::interaction::application_command::ApplicationCommandInteraction,
 };
 
-pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {}
+pub async fn run(_ctx: Context, _command: ApplicationCommandInteraction) {}

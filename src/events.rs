@@ -72,7 +72,6 @@ impl EventHandler for Handler {
                             .name("github_username")
                             .description("The github username of the contributor to look for")
                             .kind(CommandOptionType::String)
-                            .set_autocomplete(true)
                             .required(true)
                     })
             })

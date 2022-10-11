@@ -10,7 +10,7 @@ use serenity::model::Timestamp;
 use serenity::prelude::Context;
 use serenity::utils::Colour;
 
-use crate::api::hero::{get_hero, get_random_hero, Hero};
+use crate::api::hero::{get_hero, get_random_hero, Hero, Pulls};
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
     CreateButton::default()
@@ -22,39 +22,68 @@ fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
 }
 
 pub async fn run(ctx: Context, command: ApplicationCommandInteraction, hero: Hero) {
+    let mut hero = hero;
     let mut pull_req = String::new();
+
+    if hero.pulls.len() < 3 {
+        for _ in 0..3 {
+            hero.pulls.push(Pulls {
+                title: "".to_string(),
+                url: "".to_string(),
+            })
+        }
+    }
 
     for (index, pr) in hero.pulls.iter().take(3).enumerate() {
         let mut pull_req_cloned = pull_req.clone();
 
         if hero.pulls[0..2].len() == index {
-            pull_req_cloned += &format!("<:reply:1029065416905076808>[{}]({})\n", pr.title, pr.url);
+            if !hero.pulls[index].title.is_empty() {
+                pull_req_cloned +=
+                    &format!("<:reply:1029065416905076808>[{}]({})\n", pr.title, pr.url);
+            } else {
+                pull_req_cloned += &format!("<:reply:1029065416905076808>Not Availible\n");
+            }
         } else {
-            pull_req_cloned += &format!(
-                "<:reply_multi:1029067132572549142>[{}]({})\n",
-                pr.title, pr.url
-            );
+            if hero.pulls[index].title.is_empty() {
+                pull_req_cloned += &format!("<:reply_multi:1029067132572549142>Not Availible\n");
+            } else {
+                pull_req_cloned += &format!(
+                    "<:reply_multi:1029067132572549142>[{}]({})\n",
+                    pr.title, pr.url
+                );
+            }
         }
 
         pull_req = pull_req_cloned
     }
 
     let data = format!(
-            "`ℹ️` **Information**\n<:reply_multi:1029067132572549142>**Name:** `{}`\n<:reply_multi:1029067132572549142>**Location:** `{}`\n<:reply_multi:1029067132572549142>**Bio:** `{}`\n<:reply_multi:1029067132572549142>**Total PRs:** `{}`\n<:reply:1029065416905076808>**Last Activity:** <t:{}:F>\n\n`📙` **Socials**\n<:gh:1029368861776167004> **GitHub:** https://github.com/{}\n<:lkdn:1029410421641326755> **LinkedIn:** {}\n<:twitter:1029410910432935936> **Twitter:** {}\n<:discord:1029412089170767922> **Discord:** {}\n\n`🔗` **Last 3 PRs**\n{}", 
-            hero.name.unwrap_or_else(|| "Unknown".to_string()), 
-            hero.location.unwrap_or_else(|| "Unknown".to_string()), 
-            hero.bio.unwrap_or_else(|| "Unknown".to_string()), 
-            hero.total_pulls,
-            Timestamp::from(hero.last_activity_occurred_at).unix_timestamp(),
-            hero.github,
-            hero.linkedin.unwrap_or_else(|| "Not Linked".to_string()),
-            match hero.twitter {
-                Some(handle) => format!("https://twitter.com/{}", handle),
-                None => "Not Linked".to_string()
-            },
-            hero.discord.unwrap_or_else(|| "Not Linked".to_string()),
-            pull_req,
-        );
+        "`ℹ️` **Information**\n<:reply_multi:1029067132572549142>**Name:** `{}`\n<:reply_multi:1029067132572549142>**Location:** `{}`\n<:reply_multi:1029067132572549142>**Bio:** {}\n<:reply_multi:1029067132572549142>**Total PRs:** `{}`\n<:reply:1029065416905076808>**Last Activity:** {}\n\n`📙` **Socials**\n<:gh:1029368861776167004> **GitHub:** https://github.com/{}\n<:lkdn:1029410421641326755> **LinkedIn:** {}\n<:twitter:1029410910432935936> **Twitter:** {}\n<:discord:1029412089170767922> **Discord:** {}\n\n`🔗` **Last 3 PRs**\n{}",
+        hero.name.unwrap_or_else(|| "Unknown".to_string()),
+        hero.location.unwrap_or_else(|| "Unknown".to_string()),
+        hero.bio.unwrap_or_else(|| "Unknown".to_string()).to_string(),
+        if let Some(pulls) = hero.total_pulls {
+            format!("{}", pulls)
+        } else {
+            "Not Availible".to_string()
+        },
+        if let Some(last_activity_occurred_at) = hero.last_activity_occurred_at {
+            format!("<t:{}:F>", 
+                Timestamp::from(last_activity_occurred_at).unix_timestamp()
+            )
+        } else {
+            "Not Availible".to_string()
+        },
+        hero.github,
+        hero.linkedin.unwrap_or_else(|| "Not Linked".to_string()),
+        match hero.twitter {
+            Some(handle) => format!("https://twitter.com/{}", handle),
+            None => "Not Linked".to_string()
+        },
+        hero.discord.unwrap_or_else(|| "Not Linked".to_string()),
+        pull_req,
+    );
 
     if let Err(err) = command
         .create_interaction_response(&ctx.http, |response| {

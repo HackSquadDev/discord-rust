@@ -17,8 +17,8 @@ pub struct Hero {
     pub activities_count: Option<u32>,
     pub activities_score: Option<u32>,
     #[serde(rename = "totalPulls")]
-    pub total_pulls: u32,
-    pub last_activity_occurred_at: String,
+    pub total_pulls: Option<u32>,
+    pub last_activity_occurred_at: Option<String>,
     pub pulls: Vec<Pulls>,
 }
 

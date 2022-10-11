@@ -2,7 +2,7 @@ use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::DATABASE;
+use crate::{CONFIG, DATABASE};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Hero {
@@ -19,7 +19,7 @@ pub struct Hero {
     pub activities_score: Option<u32>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct HeroResponse {
     pub list: Vec<Hero>,
 }
@@ -27,26 +27,14 @@ pub struct HeroResponse {
 pub async fn get_random_hero() -> Hero {
     let db = DATABASE.lock().await;
 
-    let redis_heroes = db.get("heroes");
-
-    let hero_list = match redis_heroes {
-        Ok(heroes) => {
-            let heroes: Vec<Hero> = serde_json::from_str(&heroes).unwrap();
-            heroes
-        }
-        Err(_) => {
-            let heroes: HeroResponse = reqwest::get("https://contributors.novu.co/contributors")
-                .await
-                .unwrap()
-                .json()
-                .await
-                .unwrap();
-
-            db.save("heroes", &json!(heroes.list).to_string());
-
-            heroes.list
-        }
-    };
+    let hero_list = db
+        .request::<HeroResponse>(
+            "https://contributors.novu.co/contributors",
+            "heros",
+            CONFIG.lock().await.cache_heros_ttl,
+        )
+        .await
+        .list;
 
     hero_list
         .choose(&mut rand::thread_rng())
@@ -57,27 +45,37 @@ pub async fn get_random_hero() -> Hero {
 pub async fn get_hero(hero_github_id: &str) -> Hero {
     let db = DATABASE.lock().await;
 
-    let redis_hero = db.get(&format!("hero-{}", hero_github_id));
+    // let redis_hero = db.get(&format!("hero-{}", hero_github_id));
 
-    match redis_hero {
-        Ok(data) => serde_json::from_str(&data).unwrap(),
-        Err(_) => {
-            let hero: Hero = reqwest::get(&format!(
-                "https://contributors.novu.co/contributor/{}",
-                hero_github_id
-            ))
-            .await
-            .unwrap()
-            .json()
-            .await
-            .unwrap();
+    // match redis_hero {
+    //     Ok(data) => serde_json::from_str(&data).unwrap(),
+    //     Err(_) => {
+    //         let hero: Hero = reqwest::get(&format!(
+    //             "https://contributors.novu.co/contributor/{}",
+    //             hero_github_id
+    //         ))
+    //         .await
+    //         .unwrap()
+    //         .json()
+    //         .await
+    //         .unwrap();
 
-            db.save(
-                &format!("hero-{}", hero_github_id),
-                &json!(hero).to_string(),
-            );
+    //         db.save(
+    //             &format!("hero-{}", hero_github_id),
+    //             &json!(hero).to_string(),
+    //         );
 
-            hero
-        }
-    }
+    //         hero
+    //     }
+    // }
+
+    db.request::<Hero>(
+        &format!(
+            "https://contributors.novu.co/contributor/{}",
+            hero_github_id
+        ),
+        &format!("hero:{}", hero_github_id),
+        CONFIG.lock().await.cache_hero_ttl,
+    )
+    .await
 }

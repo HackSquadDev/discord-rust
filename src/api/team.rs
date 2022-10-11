@@ -1,14 +1,13 @@
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
-use crate::DATABASE;
+use crate::{CONFIG, DATABASE};
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct TeamsResponse {
     pub teams: Vec<Team>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct TeamResponse {
     pub team: Team,
 }
@@ -29,50 +28,23 @@ pub struct PR {
 pub async fn get_teams() -> Vec<Team> {
     let db = DATABASE.lock().await;
 
-    let redis_leaderboard = db.get("leaderboard");
-
-    match redis_leaderboard {
-        Ok(data) => serde_json::from_str(&data).unwrap(),
-        Err(_) => {
-            let api_response: TeamsResponse =
-                reqwest::get("https://www.hacksquad.dev/api/leaderboard")
-                    .await
-                    .unwrap()
-                    .json()
-                    .await
-                    .unwrap();
-
-            db.save("leaderboard", &json!(api_response.teams).to_string());
-
-            api_response.teams
-        }
-    }
+    db.request::<TeamsResponse>(
+        "https://www.hacksquad.dev/api/leaderboard",
+        "leaderboard",
+        CONFIG.lock().await.cache_leaderboard_ttl,
+    )
+    .await
+    .teams
 }
 
 pub async fn get_team(team_id: &String) -> Team {
     let db = DATABASE.lock().await;
 
-    let redis_team = db.get(&format!("team:{}", team_id));
-
-    match redis_team {
-        Ok(data) => serde_json::from_str(&data).unwrap(),
-        Err(_) => {
-            let api_response: TeamResponse = reqwest::get(&format!(
-                "https://www.hacksquad.dev/api/team?id={}",
-                team_id
-            ))
-            .await
-            .unwrap()
-            .json()
-            .await
-            .unwrap();
-
-            db.save(
-                &format!("team:{}", team_id),
-                &json!(api_response.team).to_string(),
-            );
-
-            api_response.team
-        }
-    }
+    db.request::<TeamResponse>(
+        &format!("https://www.hacksquad.dev/api/team?id={}", team_id),
+        &format!("team:{}", team_id),
+        CONFIG.lock().await.cache_team_ttl,
+    )
+    .await
+    .team
 }

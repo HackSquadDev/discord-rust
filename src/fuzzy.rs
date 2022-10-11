@@ -2,7 +2,7 @@ use serde::Serialize;
 use serde_json::{json, Value};
 use simsearch::{SearchOptions, SimSearch};
 
-use crate::api::{get_teams, Team};
+use crate::api::team::{get_teams, Team};
 
 #[derive(Serialize, Debug)]
 struct Suggestion {

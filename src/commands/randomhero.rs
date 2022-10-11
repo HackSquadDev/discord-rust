@@ -6,7 +6,7 @@ use serenity::model::prelude::ReactionType;
 use serenity::prelude::Context;
 use serenity::utils::Colour;
 
-use crate::api::get_random_hero;
+use crate::api::hero::get_random_hero;
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
     CreateButton::default()

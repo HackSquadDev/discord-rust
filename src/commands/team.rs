@@ -10,7 +10,7 @@ use serenity::model::prelude::ReactionType;
 use serenity::prelude::Context;
 use serenity::utils::Colour;
 
-use crate::api::{get_team, PR};
+use crate::api::team::{get_team, PR};
 use crate::fuzzy::search_teams;
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {

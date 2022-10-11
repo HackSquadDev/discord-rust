@@ -4,7 +4,7 @@ use serenity::model::prelude::interaction::message_component::MessageComponentIn
 use serenity::model::prelude::interaction::Interaction;
 use serenity::prelude::Context;
 
-use crate::api::get_teams;
+use crate::api::team::get_teams;
 use crate::pagination::Pagination;
 use crate::PAGINATION;
 

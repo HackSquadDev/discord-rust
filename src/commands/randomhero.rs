@@ -39,7 +39,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         hero.name, 
         hero.location, 
         hero.bio, 
-        hero.totalPulls, 
+        hero.total_pulls, 
         Timestamp::from(hero.last_activity_occurred_at).unix_timestamp(),
         hero.github, 
         hero.linkedin,

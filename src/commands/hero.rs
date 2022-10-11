@@ -35,24 +35,37 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
 
         let mut pull_req = String::new();
 
-        for (_, pr) in hero.pulls.iter().take(3).enumerate(){
-                pull_req += &format!(
-                    "<:reply_multi:1029067132572549142>[{}]({})\n",
-                    pr.title, pr.url
-                );
+        for (index, pr) in hero.pulls.iter().take(3).enumerate() {
+        
+                let mut pull_req_cloned = pull_req.clone();
+
+                if hero.pulls[0..2].len() == index {
+                    pull_req_cloned +=
+                        &format!("<:reply:1029065416905076808>[{}]({})\n", pr.title, pr.url);
+                } else {
+                    pull_req_cloned += &format!(
+                        "<:reply_multi:1029067132572549142>[{}]({})\n",
+                        pr.title, pr.url
+                    );
+                }
+
+                pull_req = pull_req_cloned
         }
 
         let data = format!(
-            "`ℹ️` **Information**\n<:reply_multi:1029067132572549142>**Name:** {:?}\n<:reply_multi:1029067132572549142>**Location:** {:?}\n<:reply_multi:1029067132572549142>**Bio:** `{:?}`\n<:reply_multi:1029067132572549142>**Total PRs:** `{}`\n<:reply_multi:1029067132572549142>**Last Activity:** <t:{}:F>\n\n`📙` **Socials**\n<:gh:1029368861776167004> **GitHub:** https://github.com/{}\n<:lkdn:1029410421641326755> **LinkedIn:** {:?}\n<:twitter:1029410910432935936> **Twitter:** @{:?}\n<:discord:1029412089170767922> **Discord:** {:?}\n\n`🔗` **Last 3 PRs**\n{}", 
-            hero.name, 
-            hero.location, 
-            hero.bio, 
-            hero.totalPulls, 
+            "`ℹ️` **Information**\n<:reply_multi:1029067132572549142>**Name:** `{}`\n<:reply_multi:1029067132572549142>**Location:** `{}`\n<:reply_multi:1029067132572549142>**Bio:** `{}`\n<:reply_multi:1029067132572549142>**Total PRs:** `{}`\n<:reply:1029067132572549142>**Last Activity:** <t:{}:F>\n\n`📙` **Socials**\n<:gh:1029368861776167004> **GitHub:** https://github.com/{}\n<:lkdn:1029410421641326755> **LinkedIn:** {}\n<:twitter:1029410910432935936> **Twitter:** {}\n<:discord:1029412089170767922> **Discord:** {}\n\n`🔗` **Last 3 PRs**\n{}", 
+            hero.name.unwrap_or("Unknown".to_string()), 
+            hero.location.unwrap_or("Unknown".to_string()), 
+            hero.bio.unwrap_or("Unknown".to_string()), 
+            hero.total_pulls, 
             Timestamp::from(hero.last_activity_occurred_at).unix_timestamp(),
             hero.github, 
-            hero.linkedin,
-            hero.twitter,
-            hero.discord,
+            hero.linkedin.unwrap_or("Not Linked".to_string()),
+            match hero.twitter {
+                Some(handle) => format!("https://twitter.com/{}", handle),
+                None => "Not Linked".to_string()
+            },
+            hero.discord.unwrap_or("Not Linked".to_string()),
             pull_req,
         );
 

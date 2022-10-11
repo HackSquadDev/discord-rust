@@ -1,5 +1,5 @@
 [package]
-name = "discord-test-bot"
+name = "hacksquad-bot"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
@@ -23,3 +23,7 @@ simsearch = "0.2"
 redis = "0.21"
 lazy_static = "1.4.0"
 rand = "0.8.5"
+
+[dependencies.openssl-sys]
+version = "0.9.71"
+features = ["vendored"]

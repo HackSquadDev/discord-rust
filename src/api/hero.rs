@@ -1,6 +1,5 @@
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
 use crate::{CONFIG, DATABASE};
 
@@ -44,30 +43,6 @@ pub async fn get_random_hero() -> Hero {
 
 pub async fn get_hero(hero_github_id: &str) -> Hero {
     let db = DATABASE.lock().await;
-
-    // let redis_hero = db.get(&format!("hero-{}", hero_github_id));
-
-    // match redis_hero {
-    //     Ok(data) => serde_json::from_str(&data).unwrap(),
-    //     Err(_) => {
-    //         let hero: Hero = reqwest::get(&format!(
-    //             "https://contributors.novu.co/contributor/{}",
-    //             hero_github_id
-    //         ))
-    //         .await
-    //         .unwrap()
-    //         .json()
-    //         .await
-    //         .unwrap();
-
-    //         db.save(
-    //             &format!("hero-{}", hero_github_id),
-    //             &json!(hero).to_string(),
-    //         );
-
-    //         hero
-    //     }
-    // }
 
     db.request::<Hero>(
         &format!(

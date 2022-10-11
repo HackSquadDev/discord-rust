@@ -18,11 +18,20 @@ pub struct Team {
     pub score: u32,
     pub slug: String,
     pub prs: Option<String>,
+    pub users: Option<Vec<User>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct User {
+    pub name: String,
+    pub handle: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PR {
     pub status: Option<String>,
+    pub title: String,
+    pub url: String,
 }
 
 pub async fn get_teams() -> Vec<Team> {

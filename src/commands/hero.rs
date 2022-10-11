@@ -53,7 +53,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         }
 
         let data = format!(
-            "`ℹ️` **Information**\n<:reply_multi:1029067132572549142>**Name:** `{}`\n<:reply_multi:1029067132572549142>**Location:** `{}`\n<:reply_multi:1029067132572549142>**Bio:** `{}`\n<:reply_multi:1029067132572549142>**Total PRs:** `{}`\n<:reply:1029067132572549142>**Last Activity:** <t:{}:F>\n\n`📙` **Socials**\n<:gh:1029368861776167004> **GitHub:** https://github.com/{}\n<:lkdn:1029410421641326755> **LinkedIn:** {}\n<:twitter:1029410910432935936> **Twitter:** {}\n<:discord:1029412089170767922> **Discord:** {}\n\n`🔗` **Last 3 PRs**\n{}", 
+            "`ℹ️` **Information**\n<:reply_multi:1029067132572549142>**Name:** `{}`\n<:reply_multi:1029067132572549142>**Location:** `{}`\n<:reply_multi:1029067132572549142>**Bio:** `{}`\n<:reply_multi:1029067132572549142>**Total PRs:** `{}`\n<:reply:1029065416905076808>**Last Activity:** <t:{}:F>\n\n`📙` **Socials**\n<:gh:1029368861776167004> **GitHub:** https://github.com/{}\n<:lkdn:1029410421641326755> **LinkedIn:** {}\n<:twitter:1029410910432935936> **Twitter:** {}\n<:discord:1029412089170767922> **Discord:** {}\n\n`🔗` **Last 3 PRs**\n{}", 
             hero.name.unwrap_or("Unknown".to_string()), 
             hero.location.unwrap_or("Unknown".to_string()), 
             hero.bio.unwrap_or("Unknown".to_string()), 

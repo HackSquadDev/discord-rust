@@ -17,7 +17,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         let mut description = String::new();
         for team in team_list {
             description += &format!(
-                "**[{}](https://hacksquad.dev/team/{})**\n<:reply_multi:1029067132572549142>Rank: `{}`\n<:reply:1029065416905076808>Points: `{}`\n",
+                "**[{}](https://hacksquad.dev/team/{})**\n<:reply_multi:1029067132572549142>`🥇`Rank: `{}`\n<:reply:1029065416905076808>Points: `{}`\n",
                 team.name.clone(),
                 team.slug,
                 teams.iter().position(|r| r.slug == team.slug).unwrap() + 1,

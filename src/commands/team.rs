@@ -62,7 +62,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
                 }
             }
             None => {
-                user_list += format!("Could not get team members").as_ref();
+                user_list += "Could not get team members";
                 todo!("API Returned invalid response")
             }
         }

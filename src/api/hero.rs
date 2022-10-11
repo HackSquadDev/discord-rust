@@ -16,6 +16,15 @@ pub struct Hero {
     pub discord: Option<String>,
     pub activities_count: Option<u32>,
     pub activities_score: Option<u32>,
+    pub totalPulls: u32,
+    pub last_activity_occurred_at: String,
+    pub pulls: Vec<Pulls>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Pulls{
+    pub url: String,
+    pub title: String,
 }
 
 #[derive(Deserialize, Serialize)]

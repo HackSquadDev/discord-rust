@@ -1,3 +1,3 @@
 pub mod hero;
 pub mod team;
-pub mod teams;
+pub mod leaderboard;

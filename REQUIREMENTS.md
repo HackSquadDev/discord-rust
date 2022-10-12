@@ -11,10 +11,18 @@
 
 # TODO
 
-- [x] Teams
+### HackSquad
+- [x] Individual Team
   - [x] Score
   - [x] Total PRs
   - [x] Total PRs Deleted
-- [ ] Users
-  - [ ] Search
-  - [ ] Info (no email)
+- [x] Leaderboard
+  - [x] Total Score
+  - [x] All PRs
+  - [x] Deleted PRs
+
+### Novu
+- [x] Contibutor / Hero
+  - [x] Info
+  - [x] Search
+- [x] Random Contibutor

@@ -10,7 +10,7 @@ use serenity::model::prelude::ReactionType;
 use serenity::prelude::Context;
 use serenity::utils::Colour;
 
-use crate::api::team::{get_team, get_teams, PR};
+use crate::api::team::{get_team, get_leaderboard, PR};
 use crate::fuzzy::search_teams;
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
@@ -34,7 +34,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
 
     if let CommandDataOptionValue::String(team_id) = option {
         let team = get_team(team_id).await;
-        let teams = get_teams().await;
+        let leaderboard = get_leaderboard().await;
 
         let mut pull_req = String::new();
         let mut user_list = String::new();
@@ -94,7 +94,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
             let data = format!(
             "`ℹ️` **Information**\n<:reply_multi:1029067132572549142>**Name:** {}\n<:reply_multi:1029067132572549142>**Rank:**`{}`\n<:reply_multi:1029067132572549142>**Score:** `{}`\n<:reply_multi:1029067132572549142>**Total PRs:** `{}`\n<:reply:1029065416905076808>**Total PRs Deleted:** `{}`\n\n`🏆` **Team Members**\n{}\n`🔗` **Last 3 PRs**\n{}",
             team.name,
-            teams.iter().position(|r| r.slug == team.slug).unwrap() + 1,
+            leaderboard.iter().position(|r| r.slug == team.slug).unwrap() + 1,
             team.score,
             team.score + deleted,
             deleted,
@@ -128,7 +128,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
             response
                 .kind(InteractionResponseType::ChannelMessageWithSource)
                 .interaction_response_data(|message| {
-                    message.content("Please provide a valid teams")
+                    message.content("Please provide a valid team")
                 })
         })
         .await

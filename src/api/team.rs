@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::{CONFIG, DATABASE};
 
 #[derive(Deserialize, Debug, Serialize)]
-pub struct TeamsResponse {
+pub struct LeaderboardResponse {
     pub teams: Vec<Team>,
 }
 
@@ -34,10 +34,10 @@ pub struct PR {
     pub url: String,
 }
 
-pub async fn get_teams() -> Vec<Team> {
+pub async fn get_leaderboard() -> Vec<Team> {
     let db = DATABASE.lock().await;
 
-    db.request::<TeamsResponse>(
+    db.request::<LeaderboardResponse>(
         "https://www.hacksquad.dev/api/leaderboard",
         "leaderboard",
         CONFIG.lock().await.cache_leaderboard_ttl,

@@ -16,20 +16,22 @@ impl EventHandler for Handler {
         match interaction {
             Interaction::ApplicationCommand(ref command) => match command.data.name.as_str() {
                 "team" => commands::team::run(ctx, command.to_owned()).await,
-                "teams" => commands::teams::run(ctx, command.to_owned()).await,
+                "leaderboard" => commands::leaderboard::run(ctx, command.to_owned()).await,
+                "hero" => commands::hero::hero(ctx, command.to_owned()).await,
+                "randomhero" => commands::hero::random_hero(ctx, command.to_owned()).await,
                 other_commands => println!("Unknown command {}", other_commands),
             },
             Interaction::MessageComponent(ref component) => match component.message.interaction {
                 Some(ref message_interaction) => match message_interaction.name.as_str() {
-                    "teams" => {
-                        commands::teams::handle_interaction(
+                    "leaderboard" => {
+                        commands::leaderboard::handle_interaction(
                             ctx,
                             component.to_owned(),
                             interaction.to_owned(),
                         )
                         .await
                     }
-                    _ => println!("We only handle component interaction in teams command"),
+                    _ => println!("We only handle component interaction in leaderboard command"),
                 },
                 None => println!("No interaction"),
             },
@@ -55,7 +57,11 @@ impl EventHandler for Handler {
 
         let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
             commands.create_application_command(|command| commands::team::register(command));
-            commands.create_application_command(|command| commands::teams::register(command))
+            commands.create_application_command(|command| commands::leaderboard::register(command));
+            commands.create_application_command(|command| {
+                commands::hero::register_random_hero(command)
+            });
+            commands.create_application_command(|command| commands::hero::register_hero(command))
         })
         .await;
 

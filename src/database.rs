@@ -1,6 +1,8 @@
 use redis::{Client, Commands, Connection, RedisError};
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 
-use crate::environment::Configuration;
+use crate::{environment::Configuration, CONFIG};
 
 #[derive(Default)]
 pub struct Database {
@@ -9,8 +11,8 @@ pub struct Database {
 }
 
 impl Database {
-    pub fn initialize(&mut self, config: &Configuration) {
-        self.config = config.clone();
+    pub async fn initialize(&mut self) {
+        self.config = CONFIG.lock().await.clone();
         self.establish_connection(self.config.redis_uri.clone());
     }
 
@@ -44,7 +46,7 @@ impl Database {
         }
     }
 
-    pub fn save(&self, key: &str, value: &str) {
+    pub fn save(&self, key: &str, value: &str, ttl_seconds: usize) {
         let mut con = self.get_connection();
 
         redis::pipe()
@@ -53,7 +55,7 @@ impl Database {
             .arg(value)
             .cmd("EXPIRE")
             .arg(key)
-            .arg(self.config.cache_leaderboard_ttl)
+            .arg(ttl_seconds)
             .execute(&mut con);
     }
 
@@ -63,5 +65,25 @@ impl Database {
         let data: Result<String, RedisError> = con.get(key);
 
         data
+    }
+
+    pub async fn request<T: for<'a> Deserialize<'a> + Serialize>(
+        &self,
+        url: &str,
+        key: &str,
+        ttl_seconds: usize,
+    ) -> T {
+        let cached = self.get(key);
+
+        match cached {
+            Ok(data) => serde_json::from_str::<T>(&data).unwrap(),
+            Err(_) => {
+                let api_response: T = reqwest::get(url).await.unwrap().json().await.unwrap();
+
+                self.save(key, &json!(api_response).to_string(), ttl_seconds);
+
+                api_response
+            }
+        }
     }
 }

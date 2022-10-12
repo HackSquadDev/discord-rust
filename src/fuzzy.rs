@@ -2,7 +2,7 @@ use serde::Serialize;
 use serde_json::{json, Value};
 use simsearch::{SearchOptions, SimSearch};
 
-use crate::api::{get_teams, Team};
+use crate::api::team::{get_leaderboard, Team};
 
 #[derive(Serialize, Debug)]
 struct Suggestion {
@@ -12,12 +12,12 @@ struct Suggestion {
 
 pub async fn search_teams(query: Option<Value>) -> Value {
     if let Some(query) = query {
-        let teams = get_teams().await;
+        let leaderboard = get_leaderboard().await;
 
         let mut engine =
             SimSearch::new_with(SearchOptions::new().case_sensitive(false).threshold(0.82));
 
-        for team in &teams {
+        for team in &leaderboard {
             engine.insert(team.slug.clone(), &team.name);
         }
 
@@ -26,7 +26,7 @@ pub async fn search_teams(query: Option<Value>) -> Value {
         let mut res = engine.search(&query);
 
         if res.is_empty() {
-            for team in &teams {
+            for team in &leaderboard {
                 res.push(team.slug.clone())
             }
 
@@ -42,7 +42,10 @@ pub async fn search_teams(query: Option<Value>) -> Value {
         let mut suggestions: Vec<Team> = Vec::new();
 
         for (_index, slug) in iter.enumerate() {
-            let team = teams.iter().find(|&p| p.slug == slug.clone()).cloned();
+            let team = leaderboard
+                .iter()
+                .find(|&p| p.slug == slug.clone())
+                .cloned();
 
             if let Some(team) = team {
                 suggestions.push(team);

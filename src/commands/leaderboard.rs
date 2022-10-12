@@ -5,22 +5,22 @@ use serenity::model::prelude::interaction::Interaction;
 use serenity::prelude::Context;
 use serenity::utils::Color;
 
-use crate::api::get_teams;
+use crate::api::team::get_leaderboard;
 use crate::pagination::Pagination;
 use crate::PAGINATION;
 
 pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
-    let teams = get_teams().await;
+    let leaderboard = get_leaderboard().await;
 
     let mut pages = Vec::new();
-    for team_list in teams.chunks(8) {
+    for team_list in leaderboard.chunks(8) {
         let mut description = String::new();
         for team in team_list {
             description += &format!(
                 "**[{}](https://hacksquad.dev/team/{})**\n<:reply_multi:1029067132572549142>`🥇`Rank: `{}`\n<:reply:1029065416905076808>Points: `{}`\n",
                 team.name.clone(),
                 team.slug,
-                teams.iter().position(|r| r.slug == team.slug).unwrap() + 1,
+                leaderboard.iter().position(|r| r.slug == team.slug).unwrap() + 1,
                 team.score
             )
         }
@@ -93,5 +93,7 @@ pub async fn handle_interaction(
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
-    command.name("teams").description("Leaderboard")
+    command
+        .name("leaderboard")
+        .description("Get the HackSquad Leaderboard")
 }

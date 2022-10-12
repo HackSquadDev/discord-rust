@@ -1,0 +1,20 @@
+/target
+
+# snyk
+.dccache
+
+# env
+.env
+
+.git/
+.gitignore
+
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+.github/
+.vscode/
+shell.nix
+
+.env.example

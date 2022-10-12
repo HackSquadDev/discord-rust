@@ -10,7 +10,7 @@ use serenity::model::prelude::ReactionType;
 use serenity::prelude::Context;
 use serenity::utils::Colour;
 
-use crate::api::team::{get_team, get_leaderboard, PR};
+use crate::api::team::{get_leaderboard, get_team, PR};
 use crate::fuzzy::search_teams;
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
@@ -127,9 +127,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         .create_interaction_response(ctx.http, |response| {
             response
                 .kind(InteractionResponseType::ChannelMessageWithSource)
-                .interaction_response_data(|message| {
-                    message.content("Please provide a valid team")
-                })
+                .interaction_response_data(|message| message.content("Please provide a valid team"))
         })
         .await
     {

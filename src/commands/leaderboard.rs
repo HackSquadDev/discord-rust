@@ -93,5 +93,7 @@ pub async fn handle_interaction(
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
-    command.name("leaderboard").description("Get the HackSquad Leaderboard")
+    command
+        .name("leaderboard")
+        .description("Get the HackSquad Leaderboard")
 }

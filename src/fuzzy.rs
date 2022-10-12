@@ -42,7 +42,10 @@ pub async fn search_teams(query: Option<Value>) -> Value {
         let mut suggestions: Vec<Team> = Vec::new();
 
         for (_index, slug) in iter.enumerate() {
-            let team = leaderboard.iter().find(|&p| p.slug == slug.clone()).cloned();
+            let team = leaderboard
+                .iter()
+                .find(|&p| p.slug == slug.clone())
+                .cloned();
 
             if let Some(team) = team {
                 suggestions.push(team);

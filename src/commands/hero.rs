@@ -42,17 +42,15 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction, hero: Her
                 pull_req_cloned +=
                     &format!("<:reply:1029065416905076808>[{}]({})\n", pr.title, pr.url);
             } else {
-                pull_req_cloned += &format!("<:reply:1029065416905076808>Not Availible\n");
+                pull_req_cloned += "<:reply:1029065416905076808>Not Availible\n";
             }
+        } else if hero.pulls[index].title.is_empty() {
+            pull_req_cloned += "<:reply_multi:1029067132572549142>Not Availible\n";
         } else {
-            if hero.pulls[index].title.is_empty() {
-                pull_req_cloned += &format!("<:reply_multi:1029067132572549142>Not Availible\n");
-            } else {
-                pull_req_cloned += &format!(
-                    "<:reply_multi:1029067132572549142>[{}]({})\n",
-                    pr.title, pr.url
-                );
-            }
+            pull_req_cloned += &format!(
+                "<:reply_multi:1029067132572549142>[{}]({})\n",
+                pr.title, pr.url
+            );
         }
 
         pull_req = pull_req_cloned
@@ -62,7 +60,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction, hero: Her
         "`ℹ️` **Information**\n<:reply_multi:1029067132572549142>**Name:** `{}`\n<:reply_multi:1029067132572549142>**Location:** `{}`\n<:reply_multi:1029067132572549142>**Bio:** {}\n<:reply_multi:1029067132572549142>**Total PRs:** `{}`\n<:reply:1029065416905076808>**Last Activity:** {}\n\n`📙` **Socials**\n<:gh:1029368861776167004> **GitHub:** https://github.com/{}\n<:lkdn:1029410421641326755> **LinkedIn:** {}\n<:twitter:1029410910432935936> **Twitter:** {}\n<:discord:1029412089170767922> **Discord:** {}\n\n`🔗` **Last 3 PRs**\n{}",
         hero.name.unwrap_or_else(|| "Unknown".to_string()),
         hero.location.unwrap_or_else(|| "Unknown".to_string()),
-        hero.bio.unwrap_or_else(|| "Unknown".to_string()).to_string(),
+        hero.bio.unwrap_or_else(|| "Unknown".to_string()),
         if let Some(pulls) = hero.total_pulls {
             format!("{}", pulls)
         } else {

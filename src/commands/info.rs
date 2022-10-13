@@ -48,7 +48,7 @@ fn generate_embed(
     };
 
     let embed = CreateEmbed::default()
-        .title("Hacksquad Bot")
+        .title("HackSquad Bot")
         .url("https://github.com/HackSquadDev/discord-rust")
         .field("API Ping (Discord)", format!("`{}`", latency), false)
         .field("Uptime", uptime, false)
@@ -57,6 +57,7 @@ fn generate_embed(
         .thumbnail(
             "https://cdn.discordapp.com/emojis/1026095278941552690.webp?size=128&quality=lossless",
         )
+        .footer(|footer| footer.text("Made with ❤ by Midka, Nishant, Sloth816"))
         .to_owned();
 
     embed

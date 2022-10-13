@@ -1,16 +1,18 @@
 use std::fmt::Display;
 
+use chrono::{DateTime, TimeZone, Utc};
 use git2::{ErrorCode, Repository};
 
 #[derive(Clone)]
 pub struct VersionInfo {
     branch: String,
     revision: String,
+    time: DateTime<Utc>,
 }
 
 impl Display for VersionInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}/{}", self.branch, self.revision)
+        write!(f, "{}/{} ({})", self.branch, self.revision, self.time)
     }
 }
 
@@ -35,10 +37,23 @@ pub fn show_head_rev(repo: &Repository) -> String {
     revision.short_id().unwrap().as_str().unwrap().to_string()
 }
 
+// get date from latest revision
+pub fn show_head_rev_date(repo: &Repository) -> DateTime<Utc> {
+    let revspec = repo.revparse("HEAD").unwrap();
+    let revision = revspec.from().unwrap();
+
+    Utc.timestamp(revision.as_commit().unwrap().time().seconds(), 0)
+}
+
 pub fn get_version() -> VersionInfo {
     let repo = Repository::open(env!("CARGO_MANIFEST_DIR")).expect("Error opening .git");
     let branch = show_branch(&repo);
     let revision = show_head_rev(&repo);
+    let time = show_head_rev_date(&repo);
 
-    VersionInfo { branch, revision }
+    VersionInfo {
+        branch,
+        revision,
+        time,
+    }
 }

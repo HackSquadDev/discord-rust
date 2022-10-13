@@ -4,11 +4,14 @@ extern crate lazy_static;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use chrono::Utc;
+use data::UptimeData;
 use serenity::model::id::UserId;
 use serenity::prelude::*;
 
 mod api;
 mod commands;
+mod data;
 mod database;
 mod environment;
 mod events;
@@ -41,6 +44,12 @@ async fn main() {
     .expect("Error creating client");
 
     DATABASE.lock().await.initialize().await;
+
+    {
+        let mut data = client.data.write().await;
+
+        data.insert::<UptimeData>(Utc::now())
+    }
 
     if let Err(why) = client.start().await {
         println!("An error occurred while running the client: {:?}", why);

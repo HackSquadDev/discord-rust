@@ -24,6 +24,7 @@ redis = "0.21"
 lazy_static = "1.4.0"
 rand = "0.8.5"
 chrono = "0.4.22"
+git2 = "0.15.0"
 
 [dependencies.openssl-sys]
 version = "0.9.71"

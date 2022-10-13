@@ -23,6 +23,7 @@ simsearch = "0.2"
 redis = "0.21"
 lazy_static = "1.4.0"
 rand = "0.8.5"
+chrono = "0.4.22"
 
 [dependencies.openssl-sys]
 version = "0.9.71"

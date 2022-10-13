@@ -19,6 +19,7 @@ impl EventHandler for Handler {
                 "leaderboard" => commands::leaderboard::run(ctx, command.to_owned()).await,
                 "hero" => commands::hero::hero(ctx, command.to_owned()).await,
                 "randomhero" => commands::hero::random_hero(ctx, command.to_owned()).await,
+                "info" => commands::info::run(ctx, command.to_owned()).await,
                 other_commands => println!("Unknown command {}", other_commands),
             },
             Interaction::MessageComponent(ref component) => match component.message.interaction {
@@ -61,7 +62,8 @@ impl EventHandler for Handler {
             commands.create_application_command(|command| {
                 commands::hero::register_random_hero(command)
             });
-            commands.create_application_command(|command| commands::hero::register_hero(command))
+            commands.create_application_command(|command| commands::hero::register_hero(command));
+            commands.create_application_command(|command| commands::info::register(command))
         })
         .await;
 

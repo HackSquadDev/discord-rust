@@ -14,6 +14,7 @@ mod environment;
 mod events;
 mod fuzzy;
 mod pagination;
+mod utils;
 
 use crate::database::Database as DB;
 use crate::environment::Configuration;

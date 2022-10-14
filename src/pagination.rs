@@ -41,11 +41,27 @@ impl Pagination {
                     message
                         .components(|c| {
                             c.create_action_row(|r| {
-                                r.add_button(button("", ButtonStyle::Primary, "<:first:1029775638061654087>".parse().unwrap()));
-                                r.add_button(button("", ButtonStyle::Primary, "<:prev:1029775635196936252>".parse().unwrap()));
+                                r.add_button(button(
+                                    "",
+                                    ButtonStyle::Primary,
+                                    "<:first:1029775638061654087>".parse().unwrap(),
+                                ));
+                                r.add_button(button(
+                                    "",
+                                    ButtonStyle::Primary,
+                                    "<:prev:1029775635196936252>".parse().unwrap(),
+                                ));
                                 r.add_button(button("", ButtonStyle::Danger, "🗑️".parse().unwrap()));
-                                r.add_button(button("", ButtonStyle::Primary, "<:next:1029775632785227796>".parse().unwrap()));
-                                r.add_button(button("", ButtonStyle::Primary, "<:last:1029775630327357502>".parse().unwrap()))
+                                r.add_button(button(
+                                    "",
+                                    ButtonStyle::Primary,
+                                    "<:next:1029775632785227796>".parse().unwrap(),
+                                ));
+                                r.add_button(button(
+                                    "",
+                                    ButtonStyle::Primary,
+                                    "<:last:1029775630327357502>".parse().unwrap(),
+                                ))
                             })
                         })
                         .set_embed(
@@ -100,14 +116,22 @@ impl Pagination {
                         message.components(|c| {
                             c.create_action_row(|r| {
                                 r.add_button(
-                                    button("", ButtonStyle::Primary, "<:first:1029775638061654087>".parse().unwrap())
-                                        .disabled(true)
-                                        .to_owned(),
+                                    button(
+                                        "",
+                                        ButtonStyle::Primary,
+                                        "<:first:1029775638061654087>".parse().unwrap(),
+                                    )
+                                    .disabled(true)
+                                    .to_owned(),
                                 );
                                 r.add_button(
-                                    button("", ButtonStyle::Primary, "<:prev:1029775635196936252>".parse().unwrap())
-                                        .disabled(true)
-                                        .to_owned(),
+                                    button(
+                                        "",
+                                        ButtonStyle::Primary,
+                                        "<:prev:1029775635196936252>".parse().unwrap(),
+                                    )
+                                    .disabled(true)
+                                    .to_owned(),
                                 );
                                 r.add_button(
                                     button("", ButtonStyle::Danger, "🗑️".parse().unwrap())
@@ -115,14 +139,22 @@ impl Pagination {
                                         .to_owned(),
                                 );
                                 r.add_button(
-                                    button("", ButtonStyle::Primary, "<:next:1029775632785227796>".parse().unwrap())
-                                        .disabled(true)
-                                        .to_owned(),
+                                    button(
+                                        "",
+                                        ButtonStyle::Primary,
+                                        "<:next:1029775632785227796>".parse().unwrap(),
+                                    )
+                                    .disabled(true)
+                                    .to_owned(),
                                 );
                                 r.add_button(
-                                    button("", ButtonStyle::Primary, "<:last:1029775630327357502>".parse().unwrap())
-                                        .disabled(true)
-                                        .to_owned(),
+                                    button(
+                                        "",
+                                        ButtonStyle::Primary,
+                                        "<:last:1029775630327357502>".parse().unwrap(),
+                                    )
+                                    .disabled(true)
+                                    .to_owned(),
                                 )
                             })
                         })

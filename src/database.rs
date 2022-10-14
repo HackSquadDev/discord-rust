@@ -2,17 +2,17 @@ use redis::{Client, Commands, Connection, RedisError};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::{environment::Configuration, CONFIG};
+use crate::environment::Configuration;
 
 #[derive(Default)]
 pub struct Database {
     client: Option<Client>,
-    config: Configuration,
+    pub config: Configuration,
 }
 
 impl Database {
-    pub async fn initialize(&mut self) {
-        self.config = CONFIG.lock().await.clone();
+    pub async fn initialize(&mut self, config: Configuration) {
+        self.config = config;
         self.establish_connection(self.config.redis_uri.clone());
     }
 

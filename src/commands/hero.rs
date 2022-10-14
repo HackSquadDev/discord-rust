@@ -11,6 +11,7 @@ use serenity::prelude::Context;
 use serenity::utils::Colour;
 
 use crate::api::hero::{get_hero, get_random_hero, Hero, Pulls};
+use crate::database::Database;
 use crate::utils::embeds::error_embed;
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
@@ -86,7 +87,7 @@ pub async fn run(
 
     let data = format!(
         "{} `ℹ️` **Information**\n<:reply_multi:1029067132572549142>**Name:** `{}`\n<:reply_multi:1029067132572549142>**Location:** `{}`\n<:reply_multi:1029067132572549142>**Total PRs:** `{}`\n<:reply:1029065416905076808>**Last Activity:** {}\n\n`📙` **Socials**\n<:gh:1029368861776167004> **GitHub:** https://github.com/{}\n<:lkdn:1029410421641326755> **LinkedIn:** {}\n<:twitter:1029410910432935936> **Twitter:** {}\n<:discord:1029412089170767922> **Discord:** {}\n\n`🔗` **Last 3 PRs**\n{}",
-        format_args!("_{}_ \n\n", hero.bio.unwrap_or_else(|| "".to_string())),
+        format_args!("_{}_ \n\n", hero.bio.unwrap_or_default()),
         hero.name.unwrap_or_else(|| "Unknown".to_string()),
         hero.location.unwrap_or_else(|| "Unknown".to_string()),
         if let Some(pulls) = hero.total_pulls {
@@ -159,15 +160,23 @@ pub async fn hero(ctx: Context, command: ApplicationCommandInteraction) {
         .as_ref()
         .expect("Expected string object");
 
+    let ctx_cloned = ctx.clone();
+    let data = ctx_cloned.data.read().await;
+    let database = data.get::<Database>().unwrap();
+
     if let CommandDataOptionValue::String(hero_github_id) = option {
-        let hero = get_hero(hero_github_id).await;
+        let hero = get_hero(database, hero_github_id).await;
 
         run(ctx, command.clone(), hero, hero_github_id.to_string()).await
     }
 }
 
 pub async fn random_hero(ctx: Context, command: ApplicationCommandInteraction) {
-    let hero = get_random_hero().await;
+    let ctx_cloned = ctx.clone();
+    let data = ctx_cloned.data.read().await;
+    let database = data.get::<Database>().unwrap();
+
+    let hero = get_random_hero(database).await;
 
     run(ctx, command, hero, "Random".to_string()).await
 }

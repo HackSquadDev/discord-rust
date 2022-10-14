@@ -461,7 +461,6 @@ dependencies = [
  "dotenvy",
  "envy",
  "git2",
- "lazy_static",
  "openssl-sys",
  "rand",
  "redis",

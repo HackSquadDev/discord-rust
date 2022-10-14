@@ -1,7 +1,7 @@
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 
-use crate::{CONFIG, DATABASE};
+use crate::database::Database;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Hero {
@@ -33,14 +33,12 @@ pub struct HeroResponse {
     pub list: Vec<Hero>,
 }
 
-pub async fn get_random_hero() -> Option<Hero> {
-    let db = DATABASE.lock().await;
-
-    let hero_list = db
+pub async fn get_random_hero(database: &Database) -> Option<Hero> {
+    let hero_list = database
         .request::<HeroResponse>(
             "https://contributors.novu.co/contributors",
             "heros",
-            CONFIG.lock().await.cache_heros_ttl,
+            database.config.cache_heros_ttl,
         )
         .await
         .ok()?
@@ -54,17 +52,16 @@ pub async fn get_random_hero() -> Option<Hero> {
     )
 }
 
-pub async fn get_hero(hero_github_id: &str) -> Option<Hero> {
-    let db = DATABASE.lock().await;
-
-    db.request::<Hero>(
-        &format!(
-            "https://contributors.novu.co/contributor/{}",
-            hero_github_id
-        ),
-        &format!("hero:{}", hero_github_id),
-        CONFIG.lock().await.cache_hero_ttl,
-    )
-    .await
-    .ok()
+pub async fn get_hero(database: &Database, hero_github_id: &str) -> Option<Hero> {
+    database
+        .request::<Hero>(
+            &format!(
+                "https://contributors.novu.co/contributor/{}",
+                hero_github_id
+            ),
+            &format!("hero:{}", hero_github_id),
+            database.config.cache_hero_ttl,
+        )
+        .await
+        .ok()
 }

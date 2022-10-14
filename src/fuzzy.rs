@@ -2,7 +2,10 @@ use serde::Serialize;
 use serde_json::{json, Value};
 use simsearch::{SearchOptions, SimSearch};
 
-use crate::api::team::{get_leaderboard, Team};
+use crate::{
+    api::team::{get_leaderboard, Team},
+    database::Database,
+};
 
 #[derive(Serialize, Debug)]
 struct Suggestion {
@@ -10,9 +13,9 @@ struct Suggestion {
     value: String,
 }
 
-pub async fn search_teams(query: Option<Value>) -> Value {
+pub async fn search_teams(database: &Database, query: Option<Value>) -> Value {
     if let Some(query) = query {
-        let leaderboard = match get_leaderboard().await {
+        let leaderboard = match get_leaderboard(database).await {
             Some(leader) => leader,
             None => {
                 return json!({

@@ -86,7 +86,7 @@ pub async fn run(
 
     let data = format!(
         "{} `ℹ️` **Information**\n<:reply_multi:1029067132572549142>**Name:** `{}`\n<:reply_multi:1029067132572549142>**Location:** `{}`\n<:reply_multi:1029067132572549142>**Total PRs:** `{}`\n<:reply:1029065416905076808>**Last Activity:** {}\n\n`📙` **Socials**\n<:gh:1029368861776167004> **GitHub:** https://github.com/{}\n<:lkdn:1029410421641326755> **LinkedIn:** {}\n<:twitter:1029410910432935936> **Twitter:** {}\n<:discord:1029412089170767922> **Discord:** {}\n\n`🔗` **Last 3 PRs**\n{}",
-        format!("_\"{}\"_ \n\n", hero.bio.unwrap_or_else(|| "".to_string())),
+        format_args!("_{}_ \n\n", hero.bio.unwrap_or_else(|| "".to_string())),
         hero.name.unwrap_or_else(|| "Unknown".to_string()),
         hero.location.unwrap_or_else(|| "Unknown".to_string()),
         if let Some(pulls) = hero.total_pulls {
@@ -160,7 +160,7 @@ pub async fn hero(ctx: Context, command: ApplicationCommandInteraction) {
         .expect("Expected string object");
 
     if let CommandDataOptionValue::String(hero_github_id) = option {
-        let hero = get_hero(&hero_github_id).await;
+        let hero = get_hero(hero_github_id).await;
 
         run(ctx, command.clone(), hero, hero_github_id.to_string()).await
     }

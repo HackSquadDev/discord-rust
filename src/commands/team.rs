@@ -34,7 +34,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         .expect("Expected string object");
 
     if let CommandDataOptionValue::String(team_id) = option {
-        let team = match get_team(&team_id).await {
+        let team = match get_team(team_id).await {
             Some(team) => team,
             None => {
                 command

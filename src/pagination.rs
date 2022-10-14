@@ -41,11 +41,11 @@ impl Pagination {
                     message
                         .components(|c| {
                             c.create_action_row(|r| {
-                                r.add_button(button("", ButtonStyle::Primary, "⏪"));
-                                r.add_button(button("", ButtonStyle::Primary, "◀️"));
-                                r.add_button(button("", ButtonStyle::Danger, "🗑️"));
-                                r.add_button(button("", ButtonStyle::Primary, "▶️"));
-                                r.add_button(button("", ButtonStyle::Primary, "⏩"))
+                                r.add_button(button("", ButtonStyle::Primary, "<:first:1029775638061654087>".parse().unwrap()));
+                                r.add_button(button("", ButtonStyle::Primary, "<:prev:1029775635196936252>".parse().unwrap()));
+                                r.add_button(button("", ButtonStyle::Danger, "🗑️".parse().unwrap()));
+                                r.add_button(button("", ButtonStyle::Primary, "<:next:1029775632785227796>".parse().unwrap()));
+                                r.add_button(button("", ButtonStyle::Primary, "<:last:1029775630327357502>".parse().unwrap()))
                             })
                         })
                         .set_embed(
@@ -75,10 +75,10 @@ impl Pagination {
     ) -> bool {
         let page_count = self.pages.len();
         match component.data.custom_id.as_str() {
-            "⏪" => {
+            "<:first:1029775638061654087>" => {
                 self.index = 0;
             }
-            "◀️" => {
+            "<:prev:1029775635196936252>" => {
                 // make it wrap around
                 if self.index == 0 {
                     self.index = self.pages.len();
@@ -100,27 +100,27 @@ impl Pagination {
                         message.components(|c| {
                             c.create_action_row(|r| {
                                 r.add_button(
-                                    button("", ButtonStyle::Primary, "⏪")
+                                    button("", ButtonStyle::Primary, "<:first:1029775638061654087>".parse().unwrap())
                                         .disabled(true)
                                         .to_owned(),
                                 );
                                 r.add_button(
-                                    button("", ButtonStyle::Primary, "◀️")
+                                    button("", ButtonStyle::Primary, "<:prev:1029775635196936252>".parse().unwrap())
                                         .disabled(true)
                                         .to_owned(),
                                 );
                                 r.add_button(
-                                    button("", ButtonStyle::Danger, "🗑️")
+                                    button("", ButtonStyle::Danger, "🗑️".parse().unwrap())
                                         .disabled(true)
                                         .to_owned(),
                                 );
                                 r.add_button(
-                                    button("", ButtonStyle::Primary, "▶️")
+                                    button("", ButtonStyle::Primary, "<:next:1029775632785227796>".parse().unwrap())
                                         .disabled(true)
                                         .to_owned(),
                                 );
                                 r.add_button(
-                                    button("", ButtonStyle::Primary, "⏩")
+                                    button("", ButtonStyle::Primary, "<:last:1029775630327357502>".parse().unwrap())
                                         .disabled(true)
                                         .to_owned(),
                                 )
@@ -139,7 +139,7 @@ impl Pagination {
 
                 return true;
             }
-            "▶️" => {
+            "<:next:1029775632785227796>" => {
                 // make it wrap around
                 if self.index == self.pages.len() - 1 {
                     self.index = 0;
@@ -147,7 +147,7 @@ impl Pagination {
                     self.index += 1;
                 }
             }
-            "⏩" => {
+            "<:last:1029775630327357502>" => {
                 self.index = self.pages.len() - 1;
             }
             _ => {
@@ -185,9 +185,9 @@ impl Pagination {
     }
 }
 
-fn button(name: &str, style: ButtonStyle, emoji: &str) -> CreateButton {
+fn button(name: &str, style: ButtonStyle, emoji: ReactionType) -> CreateButton {
     CreateButton::default()
-        .emoji(ReactionType::Unicode(emoji.to_string()))
+        .emoji(emoji.clone())
         .label(name)
         .style(style)
         .custom_id(emoji)

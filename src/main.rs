@@ -1,13 +1,9 @@
-#[macro_use]
-extern crate lazy_static;
-
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use chrono::Utc;
-use data::UptimeData;
+use data::{PaginationMap, UptimeData};
 use database::Database;
-use serenity::model::id::UserId;
 use serenity::prelude::*;
 
 mod api;
@@ -22,12 +18,6 @@ mod utils;
 
 use crate::environment::Configuration;
 use crate::events::Handler;
-use crate::pagination::Pagination;
-
-lazy_static! {
-    static ref PAGINATION: Arc<Mutex<HashMap<UserId, Pagination>>> =
-        Arc::new(Mutex::new(HashMap::new()));
-}
 
 #[tokio::main]
 async fn main() {
@@ -45,7 +35,8 @@ async fn main() {
 
         data.insert::<Configuration>(config);
         data.insert::<Database>(db);
-        data.insert::<UptimeData>(Utc::now())
+        data.insert::<UptimeData>(Utc::now());
+        data.insert::<PaginationMap>(Arc::new(Mutex::new(HashMap::new())))
     }
 
     if let Err(why) = client.start().await {

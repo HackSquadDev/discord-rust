@@ -6,9 +6,9 @@ use serenity::prelude::Context;
 use serenity::utils::Color;
 
 use crate::api::team::get_leaderboard;
+use crate::data::PaginationMap;
 use crate::database::Database;
 use crate::pagination::Pagination;
-use crate::PAGINATION;
 
 pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
     let ctx_cloned = ctx.clone();
@@ -60,7 +60,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
     let mut pagination = Pagination::new(pages);
     pagination.handle_message(ctx, command.clone()).await;
 
-    let mut paginations = PAGINATION.lock().await;
+    let mut paginations = data.get::<PaginationMap>().unwrap().lock().await;
     paginations.insert(command.user.id, pagination);
 }
 
@@ -69,7 +69,9 @@ pub async fn handle_interaction(
     component: MessageComponentInteraction,
     interaction: Interaction,
 ) {
-    let mut paginations = PAGINATION.lock().await;
+    let ctx_cloned = ctx.clone();
+    let data = ctx_cloned.data.read().await;
+    let mut paginations = data.get::<PaginationMap>().unwrap().lock().await;
 
     let mut should_clear = false;
     // println!("1 {:#?}", component);

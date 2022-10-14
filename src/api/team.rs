@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{CONFIG, DATABASE};
+use crate::DATABASE;
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct LeaderboardResponse {
@@ -41,7 +41,7 @@ pub async fn get_leaderboard() -> Option<Vec<Team>> {
         db.request::<LeaderboardResponse>(
             "https://www.hacksquad.dev/api/leaderboard",
             "leaderboard",
-            CONFIG.lock().await.cache_leaderboard_ttl,
+            db.config.cache_leaderboard_ttl,
         )
         .await
         .ok()?
@@ -56,7 +56,7 @@ pub async fn get_team(team_id: &String) -> Option<Team> {
         db.request::<TeamResponse>(
             &format!("https://www.hacksquad.dev/api/team?id={}", team_id),
             &format!("team:{}", team_id),
-            CONFIG.lock().await.cache_team_ttl,
+            db.config.cache_team_ttl,
         )
         .await
         .ok()?

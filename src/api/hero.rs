@@ -1,7 +1,7 @@
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 
-use crate::{CONFIG, DATABASE};
+use crate::DATABASE;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Hero {
@@ -40,7 +40,7 @@ pub async fn get_random_hero() -> Option<Hero> {
         .request::<HeroResponse>(
             "https://contributors.novu.co/contributors",
             "heros",
-            CONFIG.lock().await.cache_heros_ttl,
+            db.config.cache_heros_ttl,
         )
         .await
         .ok()?
@@ -63,7 +63,7 @@ pub async fn get_hero(hero_github_id: &str) -> Option<Hero> {
             hero_github_id
         ),
         &format!("hero:{}", hero_github_id),
-        CONFIG.lock().await.cache_hero_ttl,
+        db.config.cache_hero_ttl,
     )
     .await
     .ok()

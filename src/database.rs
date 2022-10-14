@@ -12,7 +12,7 @@ pub struct Database {
 
 impl Database {
     pub async fn initialize(&mut self, config: Configuration) {
-        self.config = config.clone();
+        self.config = config;
         self.establish_connection(self.config.redis_uri.clone());
     }
 

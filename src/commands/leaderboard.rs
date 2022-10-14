@@ -6,11 +6,16 @@ use serenity::prelude::Context;
 use serenity::utils::Color;
 
 use crate::api::team::get_leaderboard;
+use crate::database::Database;
 use crate::pagination::Pagination;
 use crate::PAGINATION;
 
 pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
-    let leaderboard = match get_leaderboard().await {
+    let ctx_cloned = ctx.clone();
+    let data = ctx_cloned.data.read().await;
+    let database = data.get::<Database>().unwrap();
+
+    let leaderboard = match get_leaderboard(database).await {
         Some(leaderboard) => leaderboard,
         None => {
             command

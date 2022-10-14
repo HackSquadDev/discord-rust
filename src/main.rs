@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use chrono::Utc;
 use data::UptimeData;
+use database::Database;
 use serenity::model::id::UserId;
 use serenity::prelude::*;
 
@@ -19,14 +20,10 @@ mod fuzzy;
 mod pagination;
 mod utils;
 
-use crate::database::Database as DB;
 use crate::environment::Configuration;
 use crate::events::Handler;
 use crate::pagination::Pagination;
 
-lazy_static! {
-    static ref DATABASE: Arc<Mutex<DB>> = Arc::new(Mutex::new(DB::default()));
-}
 lazy_static! {
     static ref PAGINATION: Arc<Mutex<HashMap<UserId, Pagination>>> =
         Arc::new(Mutex::new(HashMap::new()));
@@ -40,12 +37,14 @@ async fn main() {
         .await
         .expect("Error creating client");
 
-    DATABASE.lock().await.initialize(config.clone()).await;
+    let mut db = Database::default();
+    db.initialize(config.clone()).await;
 
     {
         let mut data = client.data.write().await;
 
         data.insert::<Configuration>(config);
+        data.insert::<Database>(db);
         data.insert::<UptimeData>(Utc::now())
     }
 

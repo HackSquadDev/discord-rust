@@ -11,6 +11,7 @@ use serenity::prelude::Context;
 use serenity::utils::Colour;
 
 use crate::api::hero::{get_hero, get_random_hero, Hero, Pulls};
+use crate::database::Database;
 use crate::utils::embeds::error_embed;
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
@@ -159,15 +160,23 @@ pub async fn hero(ctx: Context, command: ApplicationCommandInteraction) {
         .as_ref()
         .expect("Expected string object");
 
+    let ctx_cloned = ctx.clone();
+    let data = ctx_cloned.data.read().await;
+    let database = data.get::<Database>().unwrap();
+
     if let CommandDataOptionValue::String(hero_github_id) = option {
-        let hero = get_hero(hero_github_id).await;
+        let hero = get_hero(database, hero_github_id).await;
 
         run(ctx, command.clone(), hero, hero_github_id.to_string()).await
     }
 }
 
 pub async fn random_hero(ctx: Context, command: ApplicationCommandInteraction) {
-    let hero = get_random_hero().await;
+    let ctx_cloned = ctx.clone();
+    let data = ctx_cloned.data.read().await;
+    let database = data.get::<Database>().unwrap();
+
+    let hero = get_random_hero(database).await;
 
     run(ctx, command, hero, "Random".to_string()).await
 }

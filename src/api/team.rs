@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::DATABASE;
+use crate::database::Database;
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct LeaderboardResponse {
@@ -34,32 +34,30 @@ pub struct PR {
     pub url: String,
 }
 
-pub async fn get_leaderboard() -> Option<Vec<Team>> {
-    let db = DATABASE.lock().await;
-
+pub async fn get_leaderboard(database: &Database) -> Option<Vec<Team>> {
     Some(
-        db.request::<LeaderboardResponse>(
-            "https://www.hacksquad.dev/api/leaderboard",
-            "leaderboard",
-            db.config.cache_leaderboard_ttl,
-        )
-        .await
-        .ok()?
-        .teams,
+        database
+            .request::<LeaderboardResponse>(
+                "https://www.hacksquad.dev/api/leaderboard",
+                "leaderboard",
+                database.config.cache_leaderboard_ttl,
+            )
+            .await
+            .ok()?
+            .teams,
     )
 }
 
-pub async fn get_team(team_id: &String) -> Option<Team> {
-    let db = DATABASE.lock().await;
-
+pub async fn get_team(database: &Database, team_id: &String) -> Option<Team> {
     Some(
-        db.request::<TeamResponse>(
-            &format!("https://www.hacksquad.dev/api/team?id={}", team_id),
-            &format!("team:{}", team_id),
-            db.config.cache_team_ttl,
-        )
-        .await
-        .ok()?
-        .team,
+        database
+            .request::<TeamResponse>(
+                &format!("https://www.hacksquad.dev/api/team?id={}", team_id),
+                &format!("team:{}", team_id),
+                database.config.cache_team_ttl,
+            )
+            .await
+            .ok()?
+            .team,
     )
 }

@@ -11,6 +11,7 @@ use serenity::prelude::Context;
 use serenity::utils::Colour;
 
 use crate::api::team::{get_leaderboard, get_team, PR};
+use crate::database::Database;
 use crate::fuzzy::search_teams;
 use crate::utils::embeds::error_embed;
 
@@ -33,8 +34,12 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         .as_ref()
         .expect("Expected string object");
 
+    let ctx_cloned = ctx.clone();
+    let data = ctx_cloned.data.read().await;
+    let database = data.get::<Database>().unwrap();
+
     if let CommandDataOptionValue::String(team_id) = option {
-        let team = match get_team(team_id).await {
+        let team = match get_team(database, team_id).await {
             Some(team) => team,
             None => {
                 command
@@ -57,7 +62,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
             }
         };
 
-        let leaderboard = match get_leaderboard().await {
+        let leaderboard = match get_leaderboard(database).await {
             Some(leaderboard) => leaderboard,
             None => {
                 command
@@ -179,7 +184,11 @@ pub async fn handle_autocomplete(
     command: &AutocompleteInteraction,
     _interaction: Interaction,
 ) {
-    let search = search_teams(command.data.options[0].value.clone()).await;
+    let ctx_cloned = ctx.clone();
+    let data = ctx_cloned.data.read().await;
+    let database = data.get::<Database>().unwrap();
+
+    let search = search_teams(database, command.data.options[0].value.clone()).await;
 
     command
         .create_autocomplete_response(ctx.http, |response| response.set_choices(search))

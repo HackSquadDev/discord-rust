@@ -40,7 +40,9 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
                     .create_interaction_response(&ctx.http, |response| {
                         response
                             .kind(InteractionResponseType::ChannelMessageWithSource)
-                            .interaction_response_data(|message| message.content("Team not found"))
+                            .interaction_response_data(|message| {
+                                message.content("Team not found").ephemeral(true)
+                            })
                     })
                     .await
                     .expect("Failed to send response");

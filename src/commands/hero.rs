@@ -139,7 +139,9 @@ pub async fn hero(ctx: Context, command: ApplicationCommandInteraction) {
                     .create_interaction_response(&ctx.http, |response| {
                         response
                             .kind(InteractionResponseType::ChannelMessageWithSource)
-                            .interaction_response_data(|message| message.content("Hero not found"))
+                            .interaction_response_data(|message| {
+                                message.content("Hero not found").ephemeral(true)
+                            })
                     })
                     .await
                 {
@@ -161,7 +163,9 @@ pub async fn random_hero(ctx: Context, command: ApplicationCommandInteraction) {
                 .create_interaction_response(&ctx.http, |response| {
                     response
                         .kind(InteractionResponseType::ChannelMessageWithSource)
-                        .interaction_response_data(|message| message.content("Hero not found"))
+                        .interaction_response_data(|message| {
+                            message.content("Hero not found").ephemeral(true)
+                        })
                 })
                 .await
             {

@@ -18,7 +18,9 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
                     response
                         .kind(InteractionResponseType::ChannelMessageWithSource)
                         .interaction_response_data(|message| {
-                            message.content("Failed to fetch leaderboard")
+                            message
+                                .content("Failed to fetch leaderboard")
+                                .ephemeral(true)
                         })
                 })
                 .await

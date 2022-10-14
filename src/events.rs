@@ -20,7 +20,20 @@ impl EventHandler for Handler {
                 "hero" => commands::hero::hero(ctx, command.to_owned()).await,
                 "randomhero" => commands::hero::random_hero(ctx, command.to_owned()).await,
                 "info" => commands::info::run(ctx, command.to_owned()).await,
-                other_commands => println!("Unknown command {}", other_commands),
+                other_commands => {
+                    if let Err(err) = command
+                        .create_interaction_response(ctx.http, |response| {
+                            response.interaction_response_data(|message| {
+                                message.content("Unknown Command").ephemeral(true)
+                            })
+                        })
+                        .await
+                    {
+                        println!("Error sending unknown command response: {:?}", err);
+                    }
+
+                    println!("Unknown command {}", other_commands)
+                }
             },
             Interaction::MessageComponent(ref component) => match component.message.interaction {
                 Some(ref message_interaction) => match message_interaction.name.as_str() {

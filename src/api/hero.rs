@@ -33,7 +33,7 @@ pub struct HeroResponse {
     pub list: Vec<Hero>,
 }
 
-pub async fn get_random_hero() -> Hero {
+pub async fn get_random_hero() -> Option<Hero> {
     let db = DATABASE.lock().await;
 
     let hero_list = db
@@ -43,15 +43,18 @@ pub async fn get_random_hero() -> Hero {
             CONFIG.lock().await.cache_heros_ttl,
         )
         .await
+        .ok()?
         .list;
 
-    hero_list
-        .choose(&mut rand::thread_rng())
-        .expect("No heroes found")
-        .to_owned()
+    Some(
+        hero_list
+            .choose(&mut rand::thread_rng())
+            .expect("No heroes found")
+            .to_owned(),
+    )
 }
 
-pub async fn get_hero(hero_github_id: &str) -> Hero {
+pub async fn get_hero(hero_github_id: &str) -> Option<Hero> {
     let db = DATABASE.lock().await;
 
     db.request::<Hero>(
@@ -63,4 +66,5 @@ pub async fn get_hero(hero_github_id: &str) -> Hero {
         CONFIG.lock().await.cache_hero_ttl,
     )
     .await
+    .ok()
 }

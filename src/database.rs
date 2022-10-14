@@ -72,17 +72,17 @@ impl Database {
         url: &str,
         key: &str,
         ttl_seconds: usize,
-    ) -> T {
+    ) -> Result<T, reqwest::Error> {
         let cached = self.get(key);
 
         match cached {
-            Ok(data) => serde_json::from_str::<T>(&data).unwrap(),
+            Ok(data) => Ok(serde_json::from_str::<T>(&data).unwrap()),
             Err(_) => {
-                let api_response: T = reqwest::get(url).await.unwrap().json().await.unwrap();
+                let api_response: T = reqwest::get(url).await?.json().await?;
 
                 self.save(key, &json!(api_response).to_string(), ttl_seconds);
 
-                api_response
+                Ok(api_response)
             }
         }
     }

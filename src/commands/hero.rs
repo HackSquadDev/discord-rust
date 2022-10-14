@@ -132,14 +132,44 @@ pub async fn hero(ctx: Context, command: ApplicationCommandInteraction) {
         .expect("Expected string object");
 
     if let CommandDataOptionValue::String(hero_github_id) = option {
-        let hero = get_hero(hero_github_id).await;
+        let hero = match get_hero(hero_github_id).await {
+            Some(hero) => hero,
+            None => {
+                if let Err(err) = command
+                    .create_interaction_response(&ctx.http, |response| {
+                        response
+                            .kind(InteractionResponseType::ChannelMessageWithSource)
+                            .interaction_response_data(|message| message.content("Hero not found"))
+                    })
+                    .await
+                {
+                    println!("Error sending message: {:?}", err);
+                }
+                return;
+            }
+        };
 
         run(ctx, command, hero).await
     }
 }
 
 pub async fn random_hero(ctx: Context, command: ApplicationCommandInteraction) {
-    let hero = get_random_hero().await;
+    let hero = match get_random_hero().await {
+        Some(hero) => hero,
+        None => {
+            if let Err(err) = command
+                .create_interaction_response(&ctx.http, |response| {
+                    response
+                        .kind(InteractionResponseType::ChannelMessageWithSource)
+                        .interaction_response_data(|message| message.content("Hero not found"))
+                })
+                .await
+            {
+                println!("Error sending message: {:?}", err);
+            }
+            return;
+        }
+    };
 
     run(ctx, command, hero).await
 }

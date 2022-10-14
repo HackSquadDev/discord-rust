@@ -33,8 +33,39 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         .expect("Expected string object");
 
     if let CommandDataOptionValue::String(team_id) = option {
-        let team = get_team(team_id).await;
-        let leaderboard = get_leaderboard().await;
+        let team = match get_team(team_id).await {
+            Some(team) => team,
+            None => {
+                command
+                    .create_interaction_response(&ctx.http, |response| {
+                        response
+                            .kind(InteractionResponseType::ChannelMessageWithSource)
+                            .interaction_response_data(|message| message.content("Team not found"))
+                    })
+                    .await
+                    .expect("Failed to send response");
+
+                return;
+            }
+        };
+
+        let leaderboard = match get_leaderboard().await {
+            Some(leaderboard) => leaderboard,
+            None => {
+                command
+                    .create_interaction_response(&ctx.http, |response| {
+                        response
+                            .kind(InteractionResponseType::ChannelMessageWithSource)
+                            .interaction_response_data(|message| {
+                                message.content("Failed to fetch leaderboard")
+                            })
+                    })
+                    .await
+                    .expect("Failed to send response");
+
+                return;
+            }
+        };
 
         let mut pull_req = String::new();
         let mut user_list = String::new();

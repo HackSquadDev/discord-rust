@@ -12,7 +12,14 @@ struct Suggestion {
 
 pub async fn search_teams(query: Option<Value>) -> Value {
     if let Some(query) = query {
-        let leaderboard = get_leaderboard().await;
+        let leaderboard = match get_leaderboard().await {
+            Some(leader) => leader,
+            None => {
+                return json!({
+                    "error": "Failed to get leaderboard"
+                })
+            }
+        };
 
         let mut engine =
             SimSearch::new_with(SearchOptions::new().case_sensitive(false).threshold(0.82));

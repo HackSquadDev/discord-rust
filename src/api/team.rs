@@ -34,26 +34,32 @@ pub struct PR {
     pub url: String,
 }
 
-pub async fn get_leaderboard() -> Vec<Team> {
+pub async fn get_leaderboard() -> Option<Vec<Team>> {
     let db = DATABASE.lock().await;
 
-    db.request::<LeaderboardResponse>(
-        "https://www.hacksquad.dev/api/leaderboard",
-        "leaderboard",
-        CONFIG.lock().await.cache_leaderboard_ttl,
+    Some(
+        db.request::<LeaderboardResponse>(
+            "https://www.hacksquad.dev/api/leaderboard",
+            "leaderboard",
+            CONFIG.lock().await.cache_leaderboard_ttl,
+        )
+        .await
+        .ok()?
+        .teams,
     )
-    .await
-    .teams
 }
 
-pub async fn get_team(team_id: &String) -> Team {
+pub async fn get_team(team_id: &String) -> Option<Team> {
     let db = DATABASE.lock().await;
 
-    db.request::<TeamResponse>(
-        &format!("https://www.hacksquad.dev/api/team?id={}", team_id),
-        &format!("team:{}", team_id),
-        CONFIG.lock().await.cache_team_ttl,
+    Some(
+        db.request::<TeamResponse>(
+            &format!("https://www.hacksquad.dev/api/team?id={}", team_id),
+            &format!("team:{}", team_id),
+            CONFIG.lock().await.cache_team_ttl,
+        )
+        .await
+        .ok()?
+        .team,
     )
-    .await
-    .team
 }

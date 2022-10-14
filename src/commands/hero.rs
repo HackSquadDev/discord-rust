@@ -42,10 +42,10 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction, hero: Her
                 pull_req_cloned +=
                     &format!("<:reply:1029065416905076808>[{}]({})\n", pr.title, pr.url);
             } else {
-                pull_req_cloned += "<:reply:1029065416905076808>Not Availible\n";
+                pull_req_cloned += "<:reply:1029065416905076808>Not Available\n";
             }
         } else if hero.pulls[index].title.is_empty() {
-            pull_req_cloned += "<:reply_multi:1029067132572549142>Not Availible\n";
+            pull_req_cloned += "<:reply_multi:1029067132572549142>Not Available\n";
         } else {
             pull_req_cloned += &format!(
                 "<:reply_multi:1029067132572549142>[{}]({})\n",
@@ -64,14 +64,14 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction, hero: Her
         if let Some(pulls) = hero.total_pulls {
             format!("{}", pulls)
         } else {
-            "Not Availible".to_string()
+            "Not Available".to_string()
         },
         if let Some(last_activity_occurred_at) = hero.last_activity_occurred_at {
             format!("<t:{}:F>", 
                 Timestamp::from(last_activity_occurred_at).unix_timestamp()
             )
         } else {
-            "Not Availible".to_string()
+            "Not Available".to_string()
         },
         hero.github,
         hero.linkedin.unwrap_or_else(|| "Not Linked".to_string()),

@@ -11,6 +11,7 @@ use serenity::prelude::Context;
 use serenity::utils::Colour;
 
 use crate::api::hero::{get_hero, get_random_hero, Hero, Pulls};
+use crate::utils::embeds::error_embed;
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
     CreateButton::default()
@@ -21,8 +22,35 @@ fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
         .to_owned()
 }
 
-pub async fn run(ctx: Context, command: ApplicationCommandInteraction, hero: Hero) {
-    let mut hero = hero;
+pub async fn run(
+    ctx: Context,
+    command: ApplicationCommandInteraction,
+    hero: Option<Hero>,
+    github_id: String,
+) {
+    let mut hero = match hero {
+        Some(hero) => hero,
+        None => {
+            if let Err(err) = command
+                .create_interaction_response(&ctx.http, |response| {
+                    response
+                        .kind(InteractionResponseType::ChannelMessageWithSource)
+                        .interaction_response_data(|message| {
+                            message
+                                .set_embed(error_embed(
+                                    "Hero not found :(",
+                                    [("Github ID/Username".to_string(), github_id, false)].to_vec(),
+                                ))
+                                .ephemeral(true)
+                        })
+                })
+                .await
+            {
+                println!("Error sending message: {:?}", err);
+            }
+            return;
+        }
+    };
     let mut pull_req = String::new();
 
     if hero.pulls.len() < 3 {
@@ -132,50 +160,16 @@ pub async fn hero(ctx: Context, command: ApplicationCommandInteraction) {
         .expect("Expected string object");
 
     if let CommandDataOptionValue::String(hero_github_id) = option {
-        let hero = match get_hero(hero_github_id).await {
-            Some(hero) => hero,
-            None => {
-                if let Err(err) = command
-                    .create_interaction_response(&ctx.http, |response| {
-                        response
-                            .kind(InteractionResponseType::ChannelMessageWithSource)
-                            .interaction_response_data(|message| {
-                                message.content("Hero not found").ephemeral(true)
-                            })
-                    })
-                    .await
-                {
-                    println!("Error sending message: {:?}", err);
-                }
-                return;
-            }
-        };
+        let hero = get_hero(&hero_github_id).await;
 
-        run(ctx, command, hero).await
+        run(ctx, command.clone(), hero, hero_github_id.to_string()).await
     }
 }
 
 pub async fn random_hero(ctx: Context, command: ApplicationCommandInteraction) {
-    let hero = match get_random_hero().await {
-        Some(hero) => hero,
-        None => {
-            if let Err(err) = command
-                .create_interaction_response(&ctx.http, |response| {
-                    response
-                        .kind(InteractionResponseType::ChannelMessageWithSource)
-                        .interaction_response_data(|message| {
-                            message.content("Hero not found").ephemeral(true)
-                        })
-                })
-                .await
-            {
-                println!("Error sending message: {:?}", err);
-            }
-            return;
-        }
-    };
+    let hero = get_random_hero().await;
 
-    run(ctx, command, hero).await
+    run(ctx, command, hero, "Random".to_string()).await
 }
 
 pub fn register_hero(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {

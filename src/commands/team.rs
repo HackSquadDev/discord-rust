@@ -12,6 +12,7 @@ use serenity::utils::Colour;
 
 use crate::api::team::{get_leaderboard, get_team, PR};
 use crate::fuzzy::search_teams;
+use crate::utils::embeds::error_embed;
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
     CreateButton::default()
@@ -33,7 +34,7 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
         .expect("Expected string object");
 
     if let CommandDataOptionValue::String(team_id) = option {
-        let team = match get_team(team_id).await {
+        let team = match get_team(&team_id).await {
             Some(team) => team,
             None => {
                 command
@@ -41,7 +42,12 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
                         response
                             .kind(InteractionResponseType::ChannelMessageWithSource)
                             .interaction_response_data(|message| {
-                                message.content("Team not found").ephemeral(true)
+                                message
+                                    .set_embed(error_embed(
+                                        "Team not found",
+                                        [("Query".to_string(), team_id.clone(), false)].to_vec(),
+                                    ))
+                                    .ephemeral(true)
                             })
                     })
                     .await

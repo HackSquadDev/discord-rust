@@ -51,7 +51,7 @@ fn generate_embed(
         .title("HackSquad Bot")
         .url("https://github.com/HackSquadDev/discord-rust")
         .field("API Ping (Discord)", format!("`{}`", latency), false)
-        .field("Uptime", uptime, false)
+        .field("Bot Started", uptime, false)
         .field("Version", format!("`{}`", version.clone()), false)
         .color(Colour::MAGENTA)
         .thumbnail(

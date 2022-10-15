@@ -2,11 +2,10 @@ version: '3'
 
 services:
   bot:
-    image: ghcr.io/hacksquaddev/discord-rust:main
+    image: ghcr.io/hacksquaddev/discord-rust:main@sha256:e94722f996db616e724bdd08865638e2649b432ee16b09b181ab9615ccb001ae
     # build: .
     environment:
       - DISCORD_TOKEN=${DISCORD_TOKEN}
-      - GUILD_ID=${GUILD_ID:-0000000}
       - REDIS_URI=redis://redis/
 
   redis:

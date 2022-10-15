@@ -1,6 +1,5 @@
 use serenity::{
     async_trait,
-    http::CacheHttp,
     model::prelude::{command::Command, interaction::Interaction, Ready},
     prelude::{Context, EventHandler},
 };
@@ -78,15 +77,29 @@ impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
 
-        let commands = Command::create_global_application_command(&ctx.http(), |command| {
-            commands::team::register(command);
-            commands::leaderboard::register(command);
-            commands::hero::register_random_hero(command);
-            commands::hero::register_hero(command);
-            commands::info::register(command)
+        match Command::set_global_application_commands(&ctx.http, |commands| {
+            commands.create_application_command(|command| commands::team::register(command));
+            commands.create_application_command(|command| commands::leaderboard::register(command));
+            commands.create_application_command(|command| {
+                commands::hero::register_random_hero(command)
+            });
+            commands.create_application_command(|command| commands::hero::register_hero(command));
+            commands.create_application_command(|command| commands::info::register(command))
         })
-        .await;
-
-        println!("Registering global commands: {:?}", commands);
+        .await
+        {
+            Ok(commands) => {
+                println!(
+                    "Registering global commands: {:#?}",
+                    commands
+                        .into_iter()
+                        .map(|c| c.name)
+                        .collect::<Vec<String>>()
+                )
+            }
+            Err(why) => {
+                println!("Failed registering global commands: {:?}", why);
+            }
+        }
     }
 }

@@ -69,6 +69,31 @@ pub async fn handle_interaction(
     component: MessageComponentInteraction,
     interaction: Interaction,
 ) {
+    if interaction.clone().message_component().unwrap().user.id
+        != component.message.interaction.clone().unwrap().user.id
+    {
+        component
+            .create_interaction_response(&ctx.http, |response| {
+                response.interaction_response_data(|message| {
+                    message
+                        .add_embed(
+                            CreateEmbed::default()
+                                .description(format!(
+                                    "This belongs to <@{}>",
+                                    component.message.interaction.clone().unwrap().user.id
+                                ))
+                                .color(Color::RED)
+                                .to_owned(),
+                        )
+                        .ephemeral(true)
+                })
+            })
+            .await
+            .expect("Failed to send response");
+
+        return;
+    }
+
     let ctx_cloned = ctx.clone();
     let data = ctx_cloned.data.read().await;
     let mut paginations = data.get::<PaginationMap>().unwrap().lock().await;

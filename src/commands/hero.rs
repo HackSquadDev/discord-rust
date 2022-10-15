@@ -4,7 +4,8 @@ use serenity::model::prelude::component::ButtonStyle;
 use serenity::model::prelude::interaction::application_command::{
     ApplicationCommandInteraction, CommandDataOptionValue,
 };
-use serenity::model::prelude::interaction::InteractionResponseType;
+use serenity::model::prelude::interaction::autocomplete::AutocompleteInteraction;
+use serenity::model::prelude::interaction::{Interaction, InteractionResponseType};
 use serenity::model::prelude::ReactionType;
 use serenity::model::Timestamp;
 use serenity::prelude::Context;
@@ -12,6 +13,7 @@ use serenity::utils::Colour;
 
 use crate::api::hero::{get_hero, get_random_hero, Hero, Pulls};
 use crate::database::Database;
+use crate::fuzzy;
 use crate::utils::embeds::error_embed;
 
 fn link_button(name: &str, link: String, emoji: ReactionType) -> CreateButton {
@@ -171,6 +173,23 @@ pub async fn hero(ctx: Context, command: ApplicationCommandInteraction) {
     }
 }
 
+pub async fn handle_autocomplete(
+    ctx: Context,
+    command: &AutocompleteInteraction,
+    _interaction: Interaction,
+) {
+    let ctx_cloned = ctx.clone();
+    let data = ctx_cloned.data.read().await;
+    let database = data.get::<Database>().unwrap();
+
+    let search = fuzzy::search_hero(database, command.data.options[0].value.clone()).await;
+
+    command
+        .create_autocomplete_response(ctx.http, |response| response.set_choices(search))
+        .await
+        .unwrap();
+}
+
 pub async fn random_hero(ctx: Context, command: ApplicationCommandInteraction) {
     let ctx_cloned = ctx.clone();
     let data = ctx_cloned.data.read().await;
@@ -190,6 +209,7 @@ pub fn register_hero(command: &mut CreateApplicationCommand) -> &mut CreateAppli
                 .name("github_username")
                 .description("The github username of the contributor to look for")
                 .kind(CommandOptionType::String)
+                .set_autocomplete(true)
                 .required(true)
         })
 }

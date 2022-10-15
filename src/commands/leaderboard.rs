@@ -61,6 +61,12 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
     pagination.handle_message(ctx, command.clone()).await;
 
     let mut paginations = data.get::<PaginationMap>().unwrap().lock().await;
+
+    // check if pagination already exists, then delete it
+    if paginations.contains_key(&command.user.id) {
+        paginations.remove(&command.user.id);
+    }
+
     paginations.insert(command.user.id, pagination);
 }
 

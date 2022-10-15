@@ -33,16 +33,22 @@ pub struct HeroResponse {
     pub list: Vec<Hero>,
 }
 
+pub async fn get_all_heros(database: &Database) -> Option<Vec<Hero>> {
+    Some(
+        database
+            .request::<HeroResponse>(
+                "https://contributors.novu.co/contributors",
+                "heros",
+                database.config.cache_heros_ttl,
+            )
+            .await
+            .ok()?
+            .list,
+    )
+}
+
 pub async fn get_random_hero(database: &Database) -> Option<Hero> {
-    let hero_list = database
-        .request::<HeroResponse>(
-            "https://contributors.novu.co/contributors",
-            "heros",
-            database.config.cache_heros_ttl,
-        )
-        .await
-        .ok()?
-        .list;
+    let hero_list = get_all_heros(database).await?;
 
     Some(
         hero_list

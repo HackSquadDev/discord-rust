@@ -68,6 +68,9 @@ impl EventHandler for Handler {
                 "team" => {
                     commands::team::handle_autocomplete(ctx, command, interaction.to_owned()).await
                 }
+                "hero" => {
+                    commands::hero::handle_autocomplete(ctx, command, interaction.to_owned()).await
+                }
                 other_commands => println!("No autocompletions for {}", other_commands),
             },
             other_interactions => println!("Unhandled interaction {:?}", other_interactions),

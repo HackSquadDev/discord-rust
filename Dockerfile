@@ -57,7 +57,7 @@ RUN adduser \
 WORKDIR /app
 
 COPY --from=build /out/hacksquad-bot ./
-COPY --from=build /out/hacksquad-bot/.git ./.git
+COPY ./.git ./.git
 
 RUN chown -R bot:bot /app
 

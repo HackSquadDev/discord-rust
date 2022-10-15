@@ -1,8 +1,7 @@
-use std::env;
-
 use serenity::{
     async_trait,
-    model::prelude::{interaction::Interaction, GuildId, Ready},
+    http::CacheHttp,
+    model::prelude::{command::Command, interaction::Interaction, Ready},
     prelude::{Context, EventHandler},
 };
 
@@ -45,7 +44,24 @@ impl EventHandler for Handler {
                         )
                         .await
                     }
-                    _ => println!("We only handle component interaction in leaderboard command"),
+                    other_command => {
+                        if let Err(err) = component
+                            .create_interaction_response(ctx.http, |response| {
+                                response.interaction_response_data(|message| {
+                                    message
+                                        .content("Unknown Command Interaction")
+                                        .ephemeral(true)
+                                })
+                            })
+                            .await
+                        {
+                            println!(
+                                "Error sending unknown command interaction response: {:?}",
+                                err
+                            );
+                        };
+                        println!("No interaction handler for {}", other_command)
+                    }
                 },
                 None => println!("No interaction"),
             },
@@ -62,38 +78,15 @@ impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
 
-        let guild_id = GuildId(
-            env::var("GUILD_ID")
-                .expect("Expected GUILD_ID in environment")
-                .parse()
-                .expect("GUILD_ID must be an integer"),
-        );
-
-        let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
-            commands.create_application_command(|command| commands::team::register(command));
-            commands.create_application_command(|command| commands::leaderboard::register(command));
-            commands.create_application_command(|command| {
-                commands::hero::register_random_hero(command)
-            });
-            commands.create_application_command(|command| commands::hero::register_hero(command));
-            commands.create_application_command(|command| commands::info::register(command))
+        let commands = Command::create_global_application_command(&ctx.http(), |command| {
+            commands::team::register(command);
+            commands::leaderboard::register(command);
+            commands::hero::register_random_hero(command);
+            commands::hero::register_hero(command);
+            commands::info::register(command)
         })
         .await;
 
-        let mut slash_command_names: Vec<String> = Vec::new();
-
-        match commands {
-            Ok(commands) => {
-                for command in commands {
-                    slash_command_names.push(command.name)
-                }
-            }
-            Err(_) => todo!(),
-        }
-
-        println!(
-            "I now have the following guild slash commands: {:#?}",
-            slash_command_names
-        );
+        println!("Registering global commands: {:?}", commands);
     }
 }

@@ -21,9 +21,9 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
 
 RUN rustup target add $(cat /target.txt)
 
-RUN cargo new --bin hacksquad-bot
+RUN cargo new --bin bot
 
-WORKDIR /hacksquad-bot
+WORKDIR /bot
 
 COPY Cargo.toml Cargo.lock ./
 
@@ -54,12 +54,12 @@ RUN adduser \
     --no-create-home \
     bot
 
-WORKDIR /app
+WORKDIR /bot
 
 COPY --from=build /out/hacksquad-bot ./
 COPY ./.git ./.git
 
-RUN chown -R bot:bot /app
+RUN chown -R bot:bot /bot
 
 USER bot
 

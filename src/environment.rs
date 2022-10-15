@@ -13,7 +13,6 @@ pub fn check() -> Configuration {
 #[derive(Deserialize, Debug, Clone)]
 pub struct Configuration {
     pub discord_token: String,
-    pub guild_id: String,
     pub redis_uri: String,
 
     #[serde(default = "default_leaderboards_ttl")]
@@ -36,7 +35,6 @@ impl Default for Configuration {
     fn default() -> Self {
         Self {
             discord_token: "".to_string(),
-            guild_id: "".to_string(),
             redis_uri: "".to_string(),
             cache_leaderboard_ttl: default_leaderboards_ttl(),
             cache_team_ttl: default_team_ttl(),

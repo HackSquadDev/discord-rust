@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use time::OffsetDateTime;
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
 use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::Context;
@@ -14,19 +14,20 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
     let uptime = data.get::<UptimeData>();
 
     // start measuring latency
-    let ping_start = Utc::now();
+    let ping_start = OffsetDateTime::now_utc(); 
 
+    let embed = generate_embed("Pinging...".to_string(), uptime, &version);
     command
         .create_interaction_response(&ctx.http, |response| {
             response.interaction_response_data(|message| {
-                message.set_embed(generate_embed("Pinging...".to_string(), uptime, &version))
+                message.set_embed(embed)
             })
         })
         .await
         .unwrap();
 
     // end measuring latency
-    let end_ping = Utc::now();
+    let end_ping = OffsetDateTime::now_utc();
     let latency = calculate_latency(ping_start, end_ping);
 
     let embed = generate_embed(format!("{} ms", latency), uptime, &version);
@@ -39,11 +40,11 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
 
 fn generate_embed(
     latency: String,
-    uptime: Option<&DateTime<Utc>>,
+    uptime: Option<&OffsetDateTime>,
     version: &VersionInfo,
 ) -> CreateEmbed {
     let uptime = match uptime {
-        Some(data) => format!("<t:{}:R>", data.timestamp()),
+        Some(data) => format!("<t:{}:R>", data.unix_timestamp()),
         None => "Not Availible".to_string(),
     };
 

@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use chrono::{DateTime, Utc};
+use time::OffsetDateTime;
 use serenity::{model::prelude::UserId, prelude::TypeMapKey};
 use tokio::sync::Mutex;
 
@@ -10,7 +10,7 @@ pub struct UptimeData;
 pub struct PaginationMap;
 
 impl TypeMapKey for UptimeData {
-    type Value = DateTime<Utc>;
+    type Value = OffsetDateTime;
 }
 
 impl TypeMapKey for Configuration {

@@ -26,9 +26,6 @@ pub struct Configuration {
 
     #[serde(default = "default_hero_ttl")]
     pub cache_hero_ttl: usize,
-
-    #[serde(default = "default_owner_id")]
-    pub owner_id: String,
 }
 
 impl Default for Configuration {
@@ -40,27 +37,22 @@ impl Default for Configuration {
             cache_team_ttl: default_team_ttl(),
             cache_heros_ttl: default_heros_ttl(),
             cache_hero_ttl: default_hero_ttl(),
-            owner_id: default_owner_id(),
         }
     }
 }
 
 fn default_leaderboards_ttl() -> usize {
-    60
+    60 * 30 // 30 minutes
 }
 
 fn default_team_ttl() -> usize {
-    60
+    60 * 10 // 10 minutes
 }
 
 fn default_heros_ttl() -> usize {
-    60
+    60 * 60 * 12 // 12 hours
 }
 
 fn default_hero_ttl() -> usize {
-    60
-}
-
-fn default_owner_id() -> String {
-    "000000000".to_string()
+    60 * 60 * 12 // 12 hours
 }

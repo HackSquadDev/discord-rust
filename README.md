@@ -14,6 +14,6 @@
 1. `docker pull ghcr.io/hacksquaddev/discord-rust:main`
 1. `docker compose up` or `docker-compose up` for earlier versions of docker compose
 
-### Steps to Redeploy
+### How to autodeploy?
 
-Repeat steps 3-4 on [Steps To Run](#steps-to-run)
+Let the watchtower container run :P

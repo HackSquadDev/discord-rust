@@ -4,9 +4,21 @@ services:
   bot:
     image: ghcr.io/hacksquaddev/discord-rust:main
     # build: .
+    container_name: hacksquad-rust-bot
     environment:
       - DISCORD_TOKEN=${DISCORD_TOKEN}
       - REDIS_URI=redis://redis/
 
   redis:
     image: redis:latest
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 500 hacksquad-rust-bot
+    environment:
+      - WATCHTOWER_NOTIFICATIONS=slack
+      # works with discord if you add /slack to the end
+      - WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL=${DEPLOY_SLACK_WEBHOOK_URL}

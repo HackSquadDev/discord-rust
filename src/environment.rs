@@ -42,17 +42,17 @@ impl Default for Configuration {
 }
 
 fn default_leaderboards_ttl() -> usize {
-    60 * 60 // 1 hour
-}
-
-fn default_team_ttl() -> usize {
     60 * 30 // 30 minutes
 }
 
+fn default_team_ttl() -> usize {
+    60 * 10 // 10 minutes
+}
+
 fn default_heros_ttl() -> usize {
-    60
+    60 * 60 * 12 // 12 hours
 }
 
 fn default_hero_ttl() -> usize {
-    60
+    60 * 60 * 12 // 12 hours
 }

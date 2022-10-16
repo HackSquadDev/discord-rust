@@ -1,8 +1,8 @@
-use time::OffsetDateTime;
 use serenity::builder::{CreateApplicationCommand, CreateEmbed};
 use serenity::model::prelude::interaction::application_command::ApplicationCommandInteraction;
 use serenity::prelude::Context;
 use serenity::utils::Colour;
+use time::OffsetDateTime;
 
 use crate::data::UptimeData;
 use crate::utils::calculate_latency::calculate_latency;
@@ -14,14 +14,12 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
     let uptime = data.get::<UptimeData>();
 
     // start measuring latency
-    let ping_start = OffsetDateTime::now_utc(); 
+    let ping_start = OffsetDateTime::now_utc();
 
     let embed = generate_embed("Pinging...".to_string(), uptime, &version);
     command
         .create_interaction_response(&ctx.http, |response| {
-            response.interaction_response_data(|message| {
-                message.set_embed(embed)
-            })
+            response.interaction_response_data(|message| message.set_embed(embed))
         })
         .await
         .unwrap();

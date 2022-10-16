@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use time::OffsetDateTime;
 use data::{PaginationMap, UptimeData};
 use database::Database;
 use serenity::prelude::*;
+use time::OffsetDateTime;
 
 mod api;
 mod commands;

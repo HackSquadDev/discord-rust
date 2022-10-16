@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
-use time::OffsetDateTime;
 use serenity::{model::prelude::UserId, prelude::TypeMapKey};
+use time::OffsetDateTime;
 use tokio::sync::Mutex;
 
 use crate::{database::Database, environment::Configuration, pagination::Pagination};

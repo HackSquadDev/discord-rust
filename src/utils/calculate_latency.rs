@@ -1,7 +1,7 @@
-use  time::OffsetDateTime;
+use time::OffsetDateTime;
 
 pub fn calculate_latency(start: OffsetDateTime, end: OffsetDateTime) -> i64 {
-    let start_ts =  start.unix_timestamp();
+    let start_ts = start.unix_timestamp();
     let start_ts_ss = start.millisecond() as i64;
     let end_ts = end.unix_timestamp();
     let end_ts_ss = end.millisecond() as i64;

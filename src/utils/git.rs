@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
-use time::OffsetDateTime;
 use git2::{ErrorCode, Repository};
+use time::OffsetDateTime;
 
 #[derive(Clone)]
 pub struct VersionInfo {

@@ -17,3 +17,12 @@
 ### How to autodeploy?
 
 Let the watchtower container run :P
+
+## Development
+
+> If you're using NixOS, you're in luck since we provide a shell.nix file. Just for u ;)
+
+### Requirements
+
+- This project uses `git flow` which can be found [here](https://github.com/petervanderdoes/gitflow-avh).
+- Rust

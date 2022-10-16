@@ -19,5 +19,6 @@ pkgs.mkShell {
     pkgs.rust-analyzer
     pkgs.cargo-deny
     pkgs.cargo-watch
+    pkgs.gitflow
   ];
 }

@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use chrono::Utc;
 use data::{PaginationMap, UptimeData};
 use database::Database;
 use serenity::prelude::*;
+use time::OffsetDateTime;
 
 mod api;
 mod commands;
@@ -35,7 +35,7 @@ async fn main() {
 
         data.insert::<Configuration>(config);
         data.insert::<Database>(db);
-        data.insert::<UptimeData>(Utc::now());
+        data.insert::<UptimeData>(OffsetDateTime::now_utc());
         data.insert::<PaginationMap>(Arc::new(Mutex::new(HashMap::new())))
     }
 

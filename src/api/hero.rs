@@ -24,7 +24,7 @@ pub struct Hero {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Pulls {
-    pub url: String,
+    pub html_url: String,
     pub title: String,
 }
 

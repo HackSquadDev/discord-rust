@@ -1,13 +1,13 @@
 use std::fmt::Display;
 
-use chrono::{DateTime, TimeZone, Utc};
 use git2::{ErrorCode, Repository};
+use time::OffsetDateTime;
 
 #[derive(Clone)]
 pub struct VersionInfo {
     branch: String,
     revision: String,
-    time: DateTime<Utc>,
+    time: OffsetDateTime,
 }
 
 impl Display for VersionInfo {
@@ -38,11 +38,11 @@ pub fn show_head_rev(repo: &Repository) -> String {
 }
 
 // get date from latest revision
-pub fn show_head_rev_date(repo: &Repository) -> DateTime<Utc> {
+pub fn show_head_rev_date(repo: &Repository) -> OffsetDateTime {
     let revspec = repo.revparse("HEAD").unwrap();
     let revision = revspec.from().unwrap();
 
-    Utc.timestamp(revision.as_commit().unwrap().time().seconds(), 0)
+    OffsetDateTime::from_unix_timestamp(revision.as_commit().unwrap().time().seconds()).unwrap()
 }
 
 pub fn get_version() -> VersionInfo {

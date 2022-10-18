@@ -117,8 +117,10 @@ pub async fn run(ctx: Context, command: ApplicationCommandInteraction) {
                 let mut pull_req_cloned = pull_req.clone();
 
                 if all_prs[0..2].len() == index {
-                    pull_req_cloned +=
-                        &format!("<:reply:1029065416905076808>[{}]({})\n", pr.title, pr.html_url);
+                    pull_req_cloned += &format!(
+                        "<:reply:1029065416905076808>[{}]({})\n",
+                        pr.title, pr.html_url
+                    );
                 } else {
                     pull_req_cloned += &format!(
                         "<:reply_multi:1029067132572549142>[{}]({})\n",

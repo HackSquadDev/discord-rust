@@ -70,8 +70,10 @@ pub async fn run(
 
         if hero.pulls[0..2].len() == index {
             if !hero.pulls[index].title.is_empty() {
-                pull_req_cloned +=
-                    &format!("<:reply:1029065416905076808>[{}]({})\n", pr.title, pr.html_url);
+                pull_req_cloned += &format!(
+                    "<:reply:1029065416905076808>[{}]({})\n",
+                    pr.title, pr.html_url
+                );
             } else {
                 pull_req_cloned += "<:reply:1029065416905076808>Not Available\n";
             }

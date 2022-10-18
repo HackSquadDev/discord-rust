@@ -60,7 +60,7 @@ pub async fn run(
         for _ in 0..3 {
             hero.pulls.push(Pulls {
                 title: "".to_string(),
-                url: "".to_string(),
+                html_url: "".to_string(),
             })
         }
     }
@@ -70,8 +70,10 @@ pub async fn run(
 
         if hero.pulls[0..2].len() == index {
             if !hero.pulls[index].title.is_empty() {
-                pull_req_cloned +=
-                    &format!("<:reply:1029065416905076808>[{}]({})\n", pr.title, pr.url);
+                pull_req_cloned += &format!(
+                    "<:reply:1029065416905076808>[{}]({})\n",
+                    pr.title, pr.html_url
+                );
             } else {
                 pull_req_cloned += "<:reply:1029065416905076808>Not Available\n";
             }
@@ -80,7 +82,7 @@ pub async fn run(
         } else {
             pull_req_cloned += &format!(
                 "<:reply_multi:1029067132572549142>[{}]({})\n",
-                pr.title, pr.url
+                pr.title, pr.html_url
             );
         }
 
@@ -123,7 +125,7 @@ pub async fn run(
                         c.create_action_row(|r| {
                             r.add_button(link_button(
                                 "Hero Page",
-                                format!("https://github.com/{}", hero.github),
+                                format!("https://novu.co/contributors/{}", hero.github),
                                 "🔗".parse().unwrap(),
                             ))
                         })

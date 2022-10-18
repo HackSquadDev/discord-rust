@@ -123,7 +123,7 @@ pub async fn run(
                         c.create_action_row(|r| {
                             r.add_button(link_button(
                                 "Hero Page",
-                                format!("https://github.com/{}", hero.github),
+                                format!("https://novu.co/contributors/{}", hero.github),
                                 "🔗".parse().unwrap(),
                             ))
                         })
